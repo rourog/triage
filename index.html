@@ -534,7 +534,9 @@
       </button>
     </div>
 
-  </div> <div id="startScreen" class="overlay-screen">
+  </div>
+
+  <div id="startScreen" class="overlay-screen">
     <div class="start-header">
       <h1 class="title-main">TRIAGE<br>EXPRESS</h1>
     </div>
@@ -631,7 +633,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.6</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.7</span>
   </div>
 
   <script>
@@ -650,6 +652,7 @@
     let isErrorState = false;
     let errorTimeout = null;
     let vipAudioInterval = null;
+    let isVipOnScreen = false;
 
     let statsGuardia = {
       aciertos: { triage: 0, urgencias: 0, choque: 0 },
@@ -703,8 +706,8 @@
         }
       } else if (tipo === 'coin') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
-        osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6
+        osc.frequency.setValueAtTime(987.77, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08);
         gain.gain.setValueAtTime(vol * 2.0, audioCtx.currentTime);
         gain.gain.setValueAtTime(vol * 2.0, audioCtx.currentTime + 0.2);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
@@ -712,10 +715,9 @@
       }
     }
 
-    // SONIDO MAGIA VIP
     function iniciarBrilloVip() {
       if (vipAudioInterval) return;
-      const pentatonic = [1046.50, 1174.66, 1318.51, 1567.98, 1760.00, 2093.00, 2349.32]; // C6 a D7
+      const pentatonic = [1046.50, 1174.66, 1318.51, 1567.98, 1760.00, 2093.00, 2349.32];
       vipAudioInterval = setInterval(() => {
          let vol = getVol(); if (vol === 0) return;
          if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -736,7 +738,8 @@
     }
 
     function latidoMonitor() {
-      let vol = getVol(); if (vol === 0 || !isPlaying) return;
+      let vol = getVol(); 
+      if (vol === 0 || !isPlaying || isVipOnScreen) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
@@ -773,7 +776,7 @@
     let currentLbView = 'global';
 
     let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
-    const recomendadores = ["El Presidente Municipal", "El Director", "El Administrador", "El Sindicato", "El Subdirector", "Un amigo", "Un compañero de trabajo"];
+    const recomendadores = ["el Presidente Municipal", "el Director", "el Administrador", "el Sindicato", "el Subdirector", "un amigo", "un compañero de trabajo", "el mismo Jesucristo"];
     
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     
@@ -800,10 +803,9 @@
       detenerBrilloVip();
 
       let p = {};
-      let vipProb = 0.40 + ((multiplier - 1) * 0.10); // Probabilidad base 40% + 10% por combo
+      let vipProb = 0.05 + ((multiplier - 1) * 0.05); // Probabilidad base 5% + 5% extra con combo alto
       
       if (Math.random() < vipProb) {
-          // LÓGICA VIP
           p.isVip = true;
           let rec = recomendadores[Math.floor(Math.random() * recomendadores.length)];
           
@@ -825,14 +827,13 @@
               baseMotivo = poolUrgencias.pop();
           }
 
-          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de:<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
+          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de <br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
           
           p.edad = Math.floor(Math.random() * 60 + 18);
           p.sexo = Math.random() > 0.5 ? "M" : "F";
           p.signos = generarVitales(estadoSignos);
 
       } else {
-          // LÓGICA NORMAL
           p.isVip = false;
           const prob = Math.random();
           if (prob < 0.40) { if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico); const mot = poolTriage.pop(); p = { edad: Math.floor(Math.random()*40+18), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: "triage", signos: generarVitales('normal') }; } 
@@ -841,6 +842,7 @@
           else { if(poolBanco.length === 0) poolBanco = shuffleArray(bancoPacientes); const base = poolBanco.pop(); p = { ...base, signos: generarVitales(base.destino === 'choque' ? 'alterado' : 'normal') }; if (base.fc) p.signos.fc = base.fc; if (base.ta) p.signos.ta = base.ta; if (base.spo2) p.signos.spo2 = base.spo2; if (base.temp) p.signos.temp = base.temp; }
       }
 
+      isVipOnScreen = p.isVip;
       const esH = p.sexo === "M"; p.nombre = (esH ? Nombres.M : Nombres.F)[Math.floor(Math.random()*(esH ? Nombres.M.length : Nombres.F.length))]; p.apellido = Nombres.Ap[Math.floor(Math.random()*Nombres.Ap.length)]; p.alergias = p.alergias || AlergiasMundo[Math.floor(Math.random()*AlergiasMundo.length)]; p.app = p.app || "Ninguno"; pacienteActual = p;
 
       document.getElementById('pName').textContent = `${p.nombre} ${p.apellido}`; document.getElementById('pAge').textContent = p.edad + " años"; document.getElementById('pSex').textContent = esH ? "Masculino" : "Femenino"; document.getElementById('pAllergies').textContent = p.alergias; document.getElementById('pApp').textContent = p.app; 
@@ -872,7 +874,8 @@
 
     function animar(decision, x, y) {
       isAnimating = true; const comboEl = document.getElementById('comboDisplay');
-      detenerBrilloVip(); // Apagar magia al decidir
+      detenerBrilloVip();
+      isVipOnScreen = false;
       
       const stampEl = document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1));
       stampEl.classList.add('is-stamped');
@@ -890,7 +893,7 @@
         flash('flash-green');
 
       } else {
-        let strikePenalty = pacienteActual.isVip ? 2 : 1; // VIP castiga doble
+        let strikePenalty = pacienteActual.isVip ? 2 : 1; 
 
         statsGuardia.errores[pacienteActual.destino]++;
         comboStreak = 0; multiplier = 1; comboEl.className = 'combo-display'; score -= 200; document.getElementById('scoreVal').textContent = Math.floor(score); sonar('error'); flash('flash-red');
@@ -1011,6 +1014,7 @@
         document.body.classList.remove('edges-breathing');
         document.getElementById('vignetteOverlay').classList.remove('active');
         detenerBrilloVip();
+        isVipOnScreen = false;
     }
 
     async function terminarJuego(motivo = 'tiempo') {
