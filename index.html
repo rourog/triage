@@ -144,10 +144,8 @@
     .bg-scrolling { background-color: var(--bg); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3'/%3E%3Cpath d='M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4'/%3E%3Ccircle cx='20' cy='10' r='2'/%3E%3C/svg%3E"); background-size: 35px 35px; animation: scrollBg 20s linear infinite; }
     @keyframes scrollBg { 0% { background-position: 0 0; } 100% { background-position: 35px 35px; } }
 
-    /* Contenedores Genéricos de Pantallas Superpuestas */
     .overlay-screen { position: absolute; inset: 0; z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center;}
     
-    /* PANTALLA INICIO Y PANTALLAS MODALES */
     #startScreen { padding: 4dvh 1.5rem 2dvh 1.5rem; justify-content: space-between; align-items: center; box-sizing: border-box; height: 100dvh; }
     .start-header { flex: 0 0 auto; margin-bottom: 1rem; }
     .start-middle { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0; }
@@ -203,7 +201,6 @@
     @media (max-height: 550px) { #mainLeaderboard .lb-row:nth-child(n+4) { display: none !important; } }
     @media (max-height: 500px) { #mainLeaderboard .lb-row:nth-child(n+4) { display: none !important; } }
 
-    /* INSTRUCCIONES */
     .inst-box { font-family: system-ui, sans-serif; text-align: left; width: 100%; color: var(--text); }
     .inst-box h2 { font-family: 'Oswald', sans-serif; color: var(--brand); text-transform: uppercase; font-size: 1.8rem; margin-top: 0; margin-bottom: 0.5rem; text-align: center; border-bottom: 2px solid var(--line); padding-bottom: 0.5rem;}
     .inst-box p { font-size: 1.05rem; line-height: 1.4; margin-bottom: 1rem; color: #334155; }
@@ -229,9 +226,6 @@
 
     .final-score { font-size: 5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
-    /* ========================================================
-       OPTIMIZACIÓN EXTREMA MÓVIL
-       ======================================================== */
     @media (max-width: 600px) {
       body { height: 100dvh; justify-content: space-between; }
       .header-bar { flex: 0 0 auto; padding: 0.5rem 1rem; font-size: 1rem; }
@@ -284,6 +278,63 @@
 <body>
 
   <script src="db.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpzA-cDTTdHChQTmBsGMNmbD57RTXcKAo",
+      authDomain: "triage-express.firebaseapp.com",
+      projectId: "triage-express",
+      storageBucket: "triage-express.firebasestorage.app",
+      messagingSenderId: "467968411541",
+      appId: "1:467968411541:web:cf4b64ae54be17c456189c",
+      measurementId: "G-T63Q16GQX3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    // Puentes globales para comunicar el script principal con Firebase
+    window.guardarEnFirebase = async function(nombre, score, fecha, timestamp) {
+      try {
+        await addDoc(collection(db, "leaderboard"), {
+          name: nombre,
+          score: score,
+          fecha: fecha,
+          timestamp: timestamp
+        });
+      } catch (e) {
+        console.error("Error guardando en Firebase: ", e);
+      }
+    };
+
+    window.cargarDeFirebase = async function(vistaActual) {
+      try {
+        let q;
+        if (vistaActual === 'daily') {
+           const hoy = window.getHoyString();
+           // Requiere Índice Compuesto en Firestore (score DESC, timestamp ASC, fecha ASC)
+           q = query(collection(db, "leaderboard"), where("fecha", "==", hoy), orderBy("score", "desc"), orderBy("timestamp", "asc"), limit(10));
+        } else {
+           q = query(collection(db, "leaderboard"), orderBy("score", "desc"), orderBy("timestamp", "asc"), limit(10));
+        }
+        
+        const querySnapshot = await getDocs(q);
+        let leaderboard = [];
+        querySnapshot.forEach((doc) => {
+          leaderboard.push(doc.data());
+        });
+        return leaderboard;
+      } catch (e) {
+        console.error("Error cargando Firebase: ", e);
+        return null; // Retorna null si falla para usar el localStorage como respaldo
+      }
+    };
+  </script>
 
   <div class="edge-indicator edge-top"></div>
   <div class="edge-indicator edge-left"></div>
@@ -420,6 +471,15 @@
   </div>
 
   <script>
+    // Exportamos esta función al objeto window para que Firebase pueda usarla
+    window.getHoyString = function() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    };
+
     // --- SISTEMA DE AUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isMuted = false;
@@ -552,7 +612,13 @@
 
     let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
-    function rellenarMazos() { poolTriage = shuffleArray(motivosTriageGenerico); poolUrgencias = shuffleArray(motivosUrgenciasGenerico); poolBanco = shuffleArray(bancoPacientes); }
+    
+    // Asumimos que db.js cargó los arreglos globales
+    function rellenarMazos() { 
+      poolTriage = shuffleArray(motivosTriageGenerico); 
+      poolUrgencias = shuffleArray(motivosUrgenciasGenerico); 
+      poolBanco = shuffleArray(bancoPacientes); 
+    }
 
     function generarVitales(estado) {
       let r = {};
@@ -636,41 +702,34 @@
     pCard.addEventListener('touchstart', onDragStart, {passive: true}); window.addEventListener('touchmove', onDragMove, {passive: true}); window.addEventListener('touchend', onDragEnd);
     document.onkeydown = (e) => { if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') teclaDecidir('triage'); if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') teclaDecidir('urgencias'); if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') teclaDecidir('choque'); };
 
+    // --- LEADERBOARD FIREBASE (ASYNC) ---
     function toggleLeaderboard() {
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
       const btn = document.getElementById('btnToggleLb');
       btn.textContent = currentLbView === 'global' ? '🌍 GLOBAL' : '📅 HOY';
-      actualizarTableroVisual('lbListStart', 8);
+      window.actualizarTableroVisual('lbListStart', 8);
     }
 
-    function getHoyString() {
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function calcularRango(nuevoPuntaje) {
-      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
-      let rank = 1;
-      for (let i = 0; i < leaderboard.length; i++) {
-        if (nuevoPuntaje < leaderboard[i].score) rank++;
-      }
-      return rank;
-    }
-
-    function actualizarTableroVisual(elementId, limite) {
+    window.actualizarTableroVisual = async function(elementId, limite) {
       const container = document.getElementById(elementId); 
-      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      container.innerHTML = "<p style='color: var(--muted); font-style: italic; text-align:center; font-size:1rem; padding: 1.5rem 0;'>Conectando a la red del hospital... 📡</p>";
       
-      if (currentLbView === 'daily') {
-          const hoy = getHoyString();
-          leaderboard = leaderboard.filter(entry => entry.fecha === hoy);
+      let leaderboard = null;
+      if (window.cargarDeFirebase) {
+         leaderboard = await window.cargarDeFirebase(currentLbView);
+      }
+
+      // Fallback a LocalStorage si Firebase falla o no está listo
+      if (!leaderboard) {
+          leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+          if (currentLbView === 'daily') {
+              const hoy = window.getHoyString();
+              leaderboard = leaderboard.filter(entry => entry.fecha === hoy);
+          }
       }
 
       if (leaderboard.length === 0) { 
-        container.innerHTML = `<p style='color: var(--muted); font-style: italic; text-align:center; font-size:1.1rem; padding: 1rem 0;'>Nadie ha jugado ${currentLbView === 'global' ? 'aún' : 'hoy'}.<br>¡Sé el primero!</p>`; 
+        container.innerHTML = `<p style='color: var(--muted); font-style: italic; text-align:center; font-size:1.1rem; padding: 1.5rem 0;'>Nadie ha sobrevivido ${currentLbView === 'global' ? 'aún' : 'hoy'}.<br>¡Sé el primero!</p>`; 
         return; 
       }
 
@@ -717,8 +776,16 @@
       document.getElementById('endScreen').style.display = 'flex';
       document.getElementById('finalScoreVal').textContent = Math.floor(score);
       
-      let rango = calcularRango(score);
-      let rDisplay = document.getElementById('rankDisplay'); rDisplay.textContent = "#" + rango; rDisplay.className = "rank-display"; 
+      // Cálculo de rango local rápido para no hacer gastar lecturas en Firebase al instante
+      let leaderboardLocal = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      let rango = 1;
+      for (let i = 0; i < leaderboardLocal.length; i++) {
+        if (Math.floor(score) < leaderboardLocal[i].score) rango++;
+      }
+      
+      let rDisplay = document.getElementById('rankDisplay'); 
+      rDisplay.textContent = rango <= 10 ? "#" + rango : ">10"; 
+      rDisplay.className = "rank-display"; 
       if(rango === 1) rDisplay.classList.add('is-gold'); if(rango === 2) rDisplay.classList.add('is-silver'); if(rango === 3) rDisplay.classList.add('is-bronze');
 
       document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
@@ -726,23 +793,46 @@
       pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
     }
 
-    function procesarPuntaje() {
+    window.procesarPuntaje = async function() {
       if (recordGuardado) return; 
       let nombre = document.getElementById('playerNameInput').value.trim() || "Anónimo";
       localStorage.setItem('triageLastName', nombre);
-      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
       
-      leaderboard.push({ name: nombre, score: Math.floor(score), fecha: getHoyString(), timestamp: Date.now() });
-      leaderboard.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return (a.timestamp || 0) - (b.timestamp || 0); });
+      const fecha = window.getHoyString();
+      const timestamp = Date.now();
+      const puntos = Math.floor(score);
+
+      const btn = document.getElementById('btnPlaceboSave');
+      btn.innerHTML = '⏳'; // Indicador de carga
+
+      // Guardar en la Nube
+      if (window.guardarEnFirebase) {
+         await window.guardarEnFirebase(nombre, puntos, fecha, timestamp);
+      }
       
-      localStorage.setItem('triageLeaderboard', JSON.stringify(leaderboard));
+      // Guardar Localmente para uso sin conexión y cálculo rápido de rango
+      let leaderboardLocal = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      leaderboardLocal.push({ name: nombre, score: puntos, fecha: fecha, timestamp: timestamp });
+      leaderboardLocal.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return (a.timestamp || 0) - (b.timestamp || 0); });
+      localStorage.setItem('triageLeaderboard', JSON.stringify(leaderboardLocal));
+      
+      btn.classList.add('saved'); 
+      btn.innerHTML = '✔'; 
+      setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '💾'; }, 1500);
+
       recordGuardado = true; 
     }
 
-    function accionGuardarPlacebo() { procesarPuntaje(); const btn = document.getElementById('btnPlaceboSave'); btn.classList.add('saved'); btn.innerHTML = '✔'; setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '💾'; }, 1500); }
-    function guardarYReiniciar() { procesarPuntaje(); iniciarJuego(); }
-    function guardarYSalir() { procesarPuntaje(); document.getElementById('endScreen').style.display = 'none'; document.getElementById('startScreen').style.display = 'flex'; actualizarTableroVisual('lbListStart', 8); }
-    function volverMenu() { document.getElementById('endScreen').style.display = 'none'; document.getElementById('startScreen').style.display = 'flex'; actualizarTableroVisual('lbListStart', 8); }
+    async function accionGuardarPlacebo() { await window.procesarPuntaje(); }
+    async function guardarYReiniciar() { await window.procesarPuntaje(); iniciarJuego(); }
+    async function guardarYSalir() { 
+      await window.procesarPuntaje(); 
+      document.getElementById('endScreen').style.display = 'none'; 
+      document.getElementById('startScreen').style.display = 'flex'; 
+      window.actualizarTableroVisual('lbListStart', 8); 
+    }
+    
+    function volverMenu() { document.getElementById('endScreen').style.display = 'none'; document.getElementById('startScreen').style.display = 'flex'; window.actualizarTableroVisual('lbListStart', 8); }
     function confirmarSalida() { if(confirm("¿Abandonar guardia?")) { clearInterval(timerInterval); detenerMonitor(); isPlaying = false; isAnimating = false; isDragging = false; document.getElementById('timerVal').classList.remove('danger'); document.getElementById('comboDisplay').className = 'combo-display'; pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); volverMenu(); } }
 
     function iniciarJuego() {
@@ -765,7 +855,9 @@
     }
 
     window.onload = () => {
-      actualizarTableroVisual('lbListStart', 8);
+      // Retrasar medio segundo la carga del tablero para dar tiempo a Firebase a inicializarse
+      setTimeout(() => { window.actualizarTableroVisual('lbListStart', 8); }, 500);
+      
       let savedVol = localStorage.getItem('triageVolume');
       if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; } } 
       else { document.getElementById('volSlider').value = 0.5; }
