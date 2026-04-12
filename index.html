@@ -47,7 +47,6 @@
       transition: background-color 0.5s ease;
     }
 
-    /* EFECTO TÚNEL (TIEMPO AGOTÁNDOSE) */
     .danger-vignette {
       position: fixed; inset: 0; pointer-events: none; z-index: 4;
       box-shadow: inset 0 0 0px rgba(239, 68, 68, 0);
@@ -61,7 +60,6 @@
       100% { box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.5); }
     }
 
-    /* RESPIRACIÓN DE BORDES LATERALES Y SUPERIORES */
     .edges-breathing .edge-indicator, .edges-breathing .edge-top-bar {
       animation: breatheEdges 0.8s infinite alternate ease-in-out;
     }
@@ -192,7 +190,7 @@
     .flash-green { background: rgba(16, 185, 129, 0.2); }
     .flash-red { background: rgba(239, 68, 68, 0.3); }
 
-    .overlay-screen { position: absolute; top: 0; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+    .overlay-screen { position: absolute; top: 0; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: var(--bg); }
     
     #startScreen { padding: 4dvh 1.5rem 2dvh 1.5rem; justify-content: space-between; box-sizing: border-box; }
     .start-header { flex: 0 0 auto; margin-bottom: 1rem; }
@@ -208,7 +206,6 @@
     .btn-info { font-family: 'Oswald', sans-serif; width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background: #f1f5f9; color: var(--muted); border: 2px solid var(--line); font-size: 2.2rem; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; }
     .btn-info:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
 
-    /* ESTILOS POST-MORTEM (RANKING Y ESTADÍSTICAS) */
     .rank-badge { font-size: 5.5rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem; text-shadow: 0 10px 20px rgba(0,0,0,0.15); }
     .rank-S { color: #f59e0b; text-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
     .rank-A { color: var(--brand); }
@@ -286,11 +283,12 @@
     .btn-icon-save:active { transform: translateY(5px); box-shadow: 0 0 0 #0f766e; }
     .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 5px 0 #047857; }
 
-    .final-score { font-size: 4rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .final-score { font-size: 5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
-    /* ========================================================
-       OPTIMIZACIÓN EXTREMA MÓVIL
-       ======================================================== */
+    /* CONTENEDOR MAESTRO DEL JUEGO */
+    #gameUI { display: none; width: 100%; flex: 1; flex-direction: column; align-items: center; }
+    #gameUI.active { display: flex; }
+
     @media (max-width: 600px) {
       .header-bar { padding: 0.5rem 1rem; font-size: 1rem; }
       .timer { font-size: 1.6rem !important; }
@@ -313,7 +311,7 @@
       .stamp { font-size: 2.2rem; }
       
       .controls { padding: 0 1rem calc(45px + env(safe-area-inset-bottom, 10px)); gap: 10px; }
-      .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.95rem; }
+      .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.9rem; } /* Fuente asegurada para "Urgencias" */
       .btn-arrow { font-size: 1.4rem; margin-bottom: 0px; }
       .btn-lbl { display: none; } 
       
@@ -405,73 +403,75 @@
 
   <div id="vignetteOverlay" class="danger-vignette"></div>
 
-  <div class="edge-indicator edge-left"></div>
-  <div class="edge-indicator edge-right"></div>
-
-  <header class="header-bar">
-    <div class="score-box">
-      <div class="score-top">Pts: <span id="scoreVal">0</span><span id="comboDisplay" class="combo-display">x1.5</span></div>
-      <div class="strikes-container">
-        <span id="satDisplay" class="strike-item" title="Camas Ocupadas Innecesariamente">🛏️ 0/3</span>
-        <span id="deathDisplay" class="strike-item" title="Negligencias Graves">💀 0/5</span>
-      </div>
-    </div>
+  <div id="gameUI" class="">
     
-    <div class="timer" id="timerVal">01:30</div>
-    
-    <div class="exit-container">
-      <input type="range" id="volSlider" class="vol-slider" min="0" max="0.5" step="0.01" value="0.5" title="Volumen" oninput="ajustarVolumen()">
-      <button id="btnMute" class="btn-icon-mute" onclick="toggleMute()" title="Silenciar">🔊</button>
-      <button class="btn-exit-game" onclick="confirmarSalida()">Salir</button>
-    </div>
-  </header>
-  
-  <div class="edge-top-bar"></div>
+    <div class="edge-indicator edge-left"></div>
+    <div class="edge-indicator edge-right"></div>
 
-  <main>
-    <div id="flashOverlay" class="screen-flash"></div>
-    <div class="patient-card" id="patientCard">
-      <div class="stamp stamp-triage" id="sTriage">TRIAGE</div>
-      <div class="stamp stamp-urgencias" id="sUrgencias">URGENCIAS</div>
-      <div class="stamp stamp-choque" id="sChoque">CHOQUE</div>
-      <div class="card-left"><img id="pImg" alt="Paciente"></div>
-      <div class="card-right">
-        <h2 class="p-name" id="pName">---</h2>
-        <div class="p-grid">
-          <div><span class="data-label">EDAD:</span> <span class="data-val" id="pAge">-</span></div>
-          <div><span class="data-label">SEXO:</span> <span class="data-val" id="pSex">-</span></div>
-          <div class="p-full"><span class="data-label">ALERGIAS:</span> <span class="data-val" id="pAllergies">-</span></div>
-          <div class="p-full"><span class="data-label">APP:</span> <span class="data-val" id="pApp">-</span></div>
+    <header class="header-bar">
+      <div class="score-box">
+        <div class="score-top">Pts: <span id="scoreVal">0</span><span id="comboDisplay" class="combo-display">x1.5</span></div>
+        <div class="strikes-container">
+          <span id="satDisplay" class="strike-item" title="Camas Ocupadas Innecesariamente">🛏️ 0/3</span>
+          <span id="deathDisplay" class="strike-item" title="Negligencias Graves">💀 0/5</span>
         </div>
-        <div class="vitals-monitor">
-          <div class="vital-box"><span class="vital-lbl">FC</span><span class="vital-val" id="vFc">-</span></div>
-          <div class="vital-box"><span class="vital-lbl">FR</span><span class="vital-val" id="vFr">-</span></div>
-          <div class="vital-box"><span class="vital-lbl">TA</span><span class="vital-val" id="vTa">-</span></div>
-          <div class="vital-box"><span class="vital-lbl">TEMP</span><span class="vital-val" id="vTemp">-</span></div>
-          <div class="vital-box"><span class="vital-lbl">SPO2</span><span class="vital-val" id="vSpo2">-</span></div>
-          <div class="vital-box"><span class="vital-lbl">GLUC</span><span class="vital-val" id="vGluc">-</span></div>
-        </div>
-        <div class="p-reason" id="pReason">"..."</div>
       </div>
+      
+      <div class="timer" id="timerVal">01:30</div>
+      
+      <div class="exit-container">
+        <input type="range" id="volSlider" class="vol-slider" min="0" max="0.5" step="0.01" value="0.5" title="Volumen" oninput="ajustarVolumen()">
+        <button id="btnMute" class="btn-icon-mute" onclick="toggleMute()" title="Silenciar">🔊</button>
+        <button class="btn-exit-game" onclick="confirmarSalida()">Salir</button>
+      </div>
+    </header>
+    
+    <div class="edge-top-bar"></div>
+
+    <main>
+      <div id="flashOverlay" class="screen-flash"></div>
+      <div class="patient-card" id="patientCard">
+        <div class="stamp stamp-triage" id="sTriage">TRIAGE</div>
+        <div class="stamp stamp-urgencias" id="sUrgencias">URGENCIAS</div>
+        <div class="stamp stamp-choque" id="sChoque">CHOQUE</div>
+        <div class="card-left"><img id="pImg" alt="Paciente"></div>
+        <div class="card-right">
+          <h2 class="p-name" id="pName">---</h2>
+          <div class="p-grid">
+            <div><span class="data-label">EDAD:</span> <span class="data-val" id="pAge">-</span></div>
+            <div><span class="data-label">SEXO:</span> <span class="data-val" id="pSex">-</span></div>
+            <div class="p-full"><span class="data-label">ALERGIAS:</span> <span class="data-val" id="pAllergies">-</span></div>
+            <div class="p-full"><span class="data-label">APP:</span> <span class="data-val" id="pApp">-</span></div>
+          </div>
+          <div class="vitals-monitor">
+            <div class="vital-box"><span class="vital-lbl">FC</span><span class="vital-val" id="vFc">-</span></div>
+            <div class="vital-box"><span class="vital-lbl">FR</span><span class="vital-val" id="vFr">-</span></div>
+            <div class="vital-box"><span class="vital-lbl">TA</span><span class="vital-val" id="vTa">-</span></div>
+            <div class="vital-box"><span class="vital-lbl">TEMP</span><span class="vital-val" id="vTemp">-</span></div>
+            <div class="vital-box"><span class="vital-lbl">SPO2</span><span class="vital-val" id="vSpo2">-</span></div>
+            <div class="vital-box"><span class="vital-lbl">GLUC</span><span class="vital-val" id="vGluc">-</span></div>
+          </div>
+          <div class="p-reason" id="pReason">"..."</div>
+        </div>
+      </div>
+    </main>
+
+    <div class="controls">
+      <button class="btn-triage btn-izq" onclick="teclaDecidir('triage')">
+        <span class="btn-arrow">◀</span>
+        <span>Triage <span class="btn-lbl">(A)</span></span>
+      </button>
+      <button class="btn-triage btn-cen" onclick="teclaDecidir('choque')">
+        <span class="btn-arrow">▲</span>
+        <span>Choque <span class="btn-lbl">(W)</span></span>
+      </button>
+      <button class="btn-triage btn-der" onclick="teclaDecidir('urgencias')">
+        <span class="btn-arrow">▶</span>
+        <span>Urgencias <span class="btn-lbl">(D)</span></span>
+      </button>
     </div>
-  </main>
 
-  <div class="controls">
-    <button class="btn-triage btn-izq" onclick="teclaDecidir('triage')">
-      <span class="btn-arrow">◀</span>
-      <span>Triage <span class="btn-lbl">(A)</span></span>
-    </button>
-    <button class="btn-triage btn-cen" onclick="teclaDecidir('choque')">
-      <span class="btn-arrow">▲</span>
-      <span>Choque <span class="btn-lbl">(W)</span></span>
-    </button>
-    <button class="btn-triage btn-der" onclick="teclaDecidir('urgencias')">
-      <span class="btn-arrow">▶</span>
-      <span>Urgen <span class="btn-lbl">(D)</span></span>
-    </button>
-  </div>
-
-  <div id="startScreen" class="overlay-screen bg-scrolling">
+  </div> <div id="startScreen" class="overlay-screen bg-scrolling">
     <div class="start-header">
       <h1 class="title-main">TRIAGE<br>EXPRESS</h1>
     </div>
@@ -516,7 +516,7 @@
   </div>
 
   <div id="endScreen" class="overlay-screen bg-scrolling" style="display: none;">
-    <div class="start-glass-panel" style="max-height: 95dvh; overflow-y: auto;">
+    <div class="start-glass-panel" style="max-height: 85dvh; overflow-y: auto;">
       
       <div class="rank-badge" id="rankBadgeEnd">S</div>
       <h2 id="endTitleMsg" class="end-title">---</h2>
@@ -532,7 +532,7 @@
           <div class="stat-val stat-ok" id="st-ok-t">0</div>
           <div class="stat-val stat-err" id="st-er-t">0</div>
           
-          <div class="stat-lbl lbl-u">Urgen</div>
+          <div class="stat-lbl lbl-u">Urgencias</div>
           <div class="stat-val stat-ok" id="st-ok-u">0</div>
           <div class="stat-val stat-err" id="st-er-u">0</div>
           
@@ -562,7 +562,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.0</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.1</span>
   </div>
 
   <script>
@@ -581,7 +581,6 @@
     let isErrorState = false;
     let errorTimeout = null;
 
-    // --- NUEVO: REGISTRO DE ESTADÍSTICAS ---
     let statsGuardia = {
       aciertos: { triage: 0, urgencias: 0, choque: 0 },
       errores: { triage: 0, urgencias: 0, choque: 0 }
@@ -717,7 +716,6 @@
     function animar(decision, x, y) {
       isAnimating = true; const comboEl = document.getElementById('comboDisplay');
       
-      // REGISTRO DE ESTADÍSTICAS
       if (decision === pacienteActual.destino) {
         statsGuardia.aciertos[decision]++;
         comboStreak++;
@@ -725,7 +723,6 @@
         else if (comboStreak === 10 && multiplier < 2) { multiplier = 2.0; sonar('combo'); comboEl.textContent = 'x2.0'; comboEl.className = 'combo-display active-20'; }
         score += (100 * multiplier); document.getElementById('scoreVal').textContent = Math.floor(score); sonar('acierto'); flash('flash-green');
       } else {
-        // Cuenta el error en el destino original que debía tener el paciente
         statsGuardia.errores[pacienteActual.destino]++;
         comboStreak = 0; multiplier = 1; comboEl.className = 'combo-display'; score -= 200; document.getElementById('scoreVal').textContent = Math.floor(score); sonar('error'); flash('flash-red');
         isErrorState = true; evaluarRitmoMonitor(timeLeft); if(errorTimeout) clearTimeout(errorTimeout); errorTimeout = setTimeout(() => { isErrorState = false; evaluarRitmoMonitor(timeLeft); }, 3000);
@@ -819,7 +816,6 @@
       document.getElementById('startScreen').style.display = 'flex';
     }
 
-    // DESACTIVA EFECTO TÚNEL
     function limpiarEfectosVisuales() {
         document.body.classList.remove('edges-breathing');
         document.getElementById('vignetteOverlay').classList.remove('active');
@@ -832,17 +828,16 @@
       limpiarEfectosVisuales();
       detenerMonitor(); await sonarFlatline(); 
       
+      document.getElementById('gameUI').classList.remove('active'); // Ocultar motor del juego
       document.getElementById('startScreen').style.display = 'none';
       document.getElementById('instructionsScreen').style.display = 'none';
       
-      // LÓGICA DE RANGOS Y ESTADÍSTICAS
       let totalErrores = statsGuardia.errores.triage + statsGuardia.errores.urgencias + statsGuardia.errores.choque;
       let rangoFinal = 'F';
       let titulo = "";
       let subtitulo = "";
 
       if (motivo !== 'tiempo') {
-          // Fallo por penalización
           rangoFinal = 'F';
           titulo = "EL CARNICERO";
           subtitulo = motivo === 'muerte' ? "Demasiadas negligencias graves. Estás despedido." : "Colapsaste el hospital enviando gripas a choque.";
@@ -862,7 +857,6 @@
           }
       }
 
-      // Volcar stats al DOM
       document.getElementById('rankBadgeEnd').textContent = rangoFinal;
       document.getElementById('rankBadgeEnd').className = 'rank-badge rank-' + rangoFinal;
       document.getElementById('endTitleMsg').textContent = titulo;
@@ -933,6 +927,7 @@
     
     function volverMenu() { 
         document.getElementById('endScreen').style.display = 'none'; 
+        document.getElementById('gameUI').classList.remove('active'); // Apagar UI
         document.getElementById('startScreen').style.display = 'flex'; 
         window.actualizarTableroVisual('lbListStart', 8); 
     }
@@ -950,7 +945,6 @@
       if (timerInterval) clearInterval(timerInterval);
       score = 0; timeLeft = 90; isPlaying = true; isAnimating = false; isDragging = false; comboStreak = 0; multiplier = 1; satStrikes = 0; deathStrikes = 0;
       
-      // RESETEAR ESTADÍSTICAS
       statsGuardia = { aciertos: { triage: 0, urgencias: 0, choque: 0 }, errores: { triage: 0, urgencias: 0, choque: 0 } };
 
       document.getElementById('satDisplay').textContent = "🛏️ 0/3"; document.getElementById('deathDisplay').textContent = "💀 0/5";
@@ -963,13 +957,14 @@
       document.getElementById('startScreen').style.display = 'none'; 
       document.getElementById('instructionsScreen').style.display = 'none';
       document.getElementById('endScreen').style.display = 'none';
+      document.getElementById('gameUI').classList.add('active'); // Encender Motor Visual
+      
       pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
       cargarPaciente(); iniciarMonitor();
       
       timerInterval = setInterval(() => {
         timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60; document.getElementById('timerVal').textContent = `0${m}:${s<10?'0':''}${s}`;
         
-        // EFECTO TÚNEL Y RESPIRACIÓN A LOS 15 SEGUNDOS
         if (timeLeft <= 15 && timeLeft > 0) { 
             document.getElementById('timerVal').classList.add('danger'); 
             document.body.classList.add('edges-breathing');
@@ -981,6 +976,9 @@
     }
 
     window.onload = () => {
+      // Iniciar con el motor de juego apagado visualmente
+      document.getElementById('gameUI').classList.remove('active');
+      
       setTimeout(() => { window.actualizarTableroVisual('lbListStart', 8); }, 500);
       let savedVol = localStorage.getItem('triageVolume');
       if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; } } 
