@@ -543,7 +543,7 @@
       <div class="leaderboard-box" id="mainLeaderboard">
         <div class="lb-header">
           <h3 id="lbTitle">TOP DIARIO</h3>
-          <button id="btnToggleLb" class="btn-lb-toggle" onclick="toggleLeaderboard()">🌍 GLOBAL</button>
+          <button id="btnToggleLb" class="btn-lb-toggle" onclick="toggleLeaderboard()">📅 HOY 🔄</button>
         </div>
         <div id="lbListStart">Cargando tablero...</div>
       </div>
@@ -965,7 +965,7 @@
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
       const btn = document.getElementById('btnToggleLb');
       const title = document.getElementById('lbTitle');
-      btn.textContent = currentLbView === 'global' ? '🌍 GLOBAL' : '📅 HOY';
+      btn.textContent = currentLbView === 'global' ? '🌍 GLOBAL 🔄' : '📅 HOY 🔄';
       title.textContent = currentLbView === 'global' ? 'TOP GLOBAL' : 'TOP DIARIO';
       window.actualizarTableroVisual('lbListStart', 8);
     }
