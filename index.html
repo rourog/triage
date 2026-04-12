@@ -544,7 +544,7 @@
     <div class="start-middle">
       <div class="leaderboard-box" id="mainLeaderboard">
         <div class="lb-header">
-          <h3>TOP MÉDICOS</h3>
+          <h3 id="lbTitle">TOP DIARIO</h3>
           <button id="btnToggleLb" class="btn-lb-toggle" onclick="toggleLeaderboard()">🌍 GLOBAL</button>
         </div>
         <div id="lbListStart">Cargando tablero...</div>
@@ -633,7 +633,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.7</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.8</span>
   </div>
 
   <script>
@@ -773,10 +773,10 @@
 
     let score = 0, timeLeft = 90, pacienteActual = null, isPlaying = false, isAnimating = false;
     let timerInterval = null, recordGuardado = false, comboStreak = 0, multiplier = 1, satStrikes = 0, deathStrikes = 0;
-    let currentLbView = 'global';
+    let currentLbView = 'daily';
 
     let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
-    const recomendadores = ["el Presidente Municipal", "el Director", "el Administrador", "el Sindicato", "el Subdirector", "un amigo", "un compañero de trabajo", "el mismo Jesucristo"];
+    const recomendadores = ["el presidente municipal", "el director", "el administrador", "el sindicato", "el subdirector", "un amigo", "un compañero de trabajo", "el mismo Jesucristo"];
     
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     
@@ -803,7 +803,7 @@
       detenerBrilloVip();
 
       let p = {};
-      let vipProb = 0.05 + ((multiplier - 1) * 0.05); // Probabilidad base 5% + 5% extra con combo alto
+      let vipProb = 0.05 + ((multiplier - 1) * 0.05); 
       
       if (Math.random() < vipProb) {
           p.isVip = true;
@@ -827,7 +827,7 @@
               baseMotivo = poolUrgencias.pop();
           }
 
-          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de <br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
+          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
           
           p.edad = Math.floor(Math.random() * 60 + 18);
           p.sexo = Math.random() > 0.5 ? "M" : "F";
@@ -964,7 +964,9 @@
     function toggleLeaderboard() {
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
       const btn = document.getElementById('btnToggleLb');
+      const title = document.getElementById('lbTitle');
       btn.textContent = currentLbView === 'global' ? '🌍 GLOBAL' : '📅 HOY';
+      title.textContent = currentLbView === 'global' ? 'TOP GLOBAL' : 'TOP DIARIO';
       window.actualizarTableroVisual('lbListStart', 8);
     }
 
