@@ -33,7 +33,6 @@
       height: 100vh; height: 100dvh;
       display: flex; flex-direction: column; align-items: center;
       background-color: var(--bg); 
-      /* DOT MATRIX GLOBAL */
       background-image: 
         radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.03) 100%),
         radial-gradient(rgba(100, 116, 139, 0.15) 1.5px, transparent 1.5px);
@@ -151,10 +150,51 @@
       transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
     }
 
-    .stamp { position: absolute; font-size: 3.5rem; font-weight: 700; padding: 0.2rem 1.5rem; border: 4px solid; border-radius: 0.5rem; opacity: 0; z-index: 10; pointer-events: none; text-transform: uppercase; background: rgba(255,255,255,0.9); transition: opacity 0.2s ease; }
-    .stamp-triage { top: 30px; right: 30px; color: var(--c-triage); border-color: var(--c-triage); transform: rotate(15deg); }
-    .stamp-urgencias { top: 30px; left: 30px; color: var(--c-urgencias); border-color: var(--c-urgencias); transform: rotate(-15deg); }
-    .stamp-choque { bottom: 30px; left: 50%; transform: translateX(-50%); color: var(--c-choque); border-color: var(--c-choque); }
+    /* --- NUEVO DISEÑO DEL SELLO (ORGÁNICO E IMPACTANTE) --- */
+    .stamp { 
+      position: absolute; 
+      top: 50%; left: 50%; /* Centrado absoluto */
+      font-size: 5rem; 
+      font-weight: 900; 
+      padding: 0.5rem 2rem; 
+      border: 6px solid; 
+      border-radius: 1rem; 
+      opacity: 0; 
+      z-index: 100; 
+      pointer-events: none; 
+      text-transform: uppercase; 
+      background: rgba(255,255,255,0.85); 
+      backdrop-filter: blur(2px);
+      transition: opacity 0.2s ease;
+    }
+    
+    /* Variables de rotación para cada tipo */
+    .stamp-triage { color: var(--c-triage); border-color: var(--c-triage); --rot: 20deg; transform: translate(-50%, -50%) rotate(20deg); }
+    .stamp-urgencias { color: var(--c-urgencias); border-color: var(--c-urgencias); --rot: -20deg; transform: translate(-50%, -50%) rotate(-20deg); }
+    .stamp-choque { color: var(--c-choque); border-color: var(--c-choque); --rot: -5deg; transform: translate(-50%, -50%) rotate(-5deg); }
+
+    /* Animación de Impacto Físico */
+    .stamp.is-stamped {
+      animation: stampHit 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* Efecto "Polvo / Onda Expansiva" */
+    .stamp.is-stamped::after {
+      content: ''; position: absolute; inset: -6px; 
+      border: 6px solid inherit; border-color: inherit; border-radius: 1rem;
+      animation: dustRing 0.4s ease-out forwards;
+    }
+
+    @keyframes stampHit {
+      0% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(1.6); opacity: 0; }
+      50% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.95); opacity: 1; }
+      100% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); opacity: 1; }
+    }
+    
+    @keyframes dustRing {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
 
     .card-left { width: 180px; background: #f1f5f9; border-right: 2px solid var(--line); display: flex; align-items: center; justify-content: center; padding: 1.5rem; flex-shrink: 0; }
     .card-left img { width: 100%; border-radius: 50%; background: white; border: 3px solid white; min-height: 120px; pointer-events: none; }
@@ -207,7 +247,6 @@
     .btn-info { font-family: 'Oswald', sans-serif; width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background: #f1f5f9; color: var(--muted); border: 2px solid var(--line); font-size: 2.2rem; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; }
     .btn-info:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
 
-    /* --- NUEVO LAYOUT END SCREEN --- */
     .end-header-row { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; width: 100%; margin-bottom: 1rem; }
     .end-header-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
     
@@ -228,7 +267,6 @@
     .stat-err { color: var(--danger); }
     .lbl-t { color: var(--c-triage); } .lbl-u { color: var(--c-urgencias); } .lbl-c { color: var(--c-choque); }
 
-    /* UNIFICACIÓN DE BOTONES */
     .btn-stacked-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .btn-primary, .btn-secondary { font-family: 'Oswald', sans-serif; width: 100%; max-width: 350px; padding: 1rem 1.5rem; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.3rem; letter-spacing: 1px; transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase; margin: 0; }
     .btn-primary { background: var(--brand); color: white; border: none; box-shadow: 0 6px 0 #0f766e, 0 10px 15px rgba(14, 165, 166, 0.3); }
@@ -291,7 +329,6 @@
 
     .final-score { font-size: 4.5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
-    /* CONTENEDOR MAESTRO DEL JUEGO */
     #gameUI { display: none; width: 100%; flex: 1; flex-direction: column; align-items: center; }
     #gameUI.active { display: flex; }
 
@@ -314,7 +351,10 @@
       .vital-lbl { font-size: 0.75rem; }
       .vital-val { font-size: 1.2rem; }
       .p-reason { grid-column: 1 / 3; grid-row: 4; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; margin: 0; padding: 0.5rem; text-align: center; font-family: system-ui, sans-serif;}
-      .stamp { font-size: 2.2rem; }
+      
+      /* --- SELLO EN MÓVIL --- */
+      .stamp { font-size: 3.5rem; padding: 0.4rem 1.2rem; border-width: 4px; }
+      .stamp.is-stamped::after { inset: -4px; border-width: 4px; }
       
       .controls { padding: 0 1rem calc(45px + env(safe-area-inset-bottom, 10px)); gap: 10px; }
       .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.9rem; } 
@@ -333,7 +373,6 @@
       
       .start-glass-panel { padding: 1rem; border-radius: 1.5rem; margin: auto; max-width: 95%;}
       
-      /* GAME OVER MÓVIL SÚPER COMPACTO */
       .end-header-row { gap: 10px; margin-bottom: 0.5rem; }
       .rank-badge { font-size: 4rem; }
       .end-title { font-size: 1.5rem; }
@@ -580,7 +619,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.2</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.3</span>
   </div>
 
   <script>
@@ -734,6 +773,11 @@
     function animar(decision, x, y) {
       isAnimating = true; const comboEl = document.getElementById('comboDisplay');
       
+      // MARCAR COMO SELLADO PARA LA ANIMACIÓN FÍSICA
+      const stampEl = document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1));
+      stampEl.classList.add('is-stamped');
+      stampEl.style.opacity = '1';
+
       if (decision === pacienteActual.destino) {
         statsGuardia.aciertos[decision]++;
         comboStreak++;
@@ -748,11 +792,15 @@
         else { deathStrikes++; document.getElementById('deathDisplay').textContent = `💀 ${deathStrikes}/5`; document.getElementById('deathDisplay').classList.add('danger-death'); }
       }
 
-      const card = document.getElementById('patientCard'); card.style.transition = 'transform 0.6s ease, opacity 0.5s ease'; card.style.transform = `translate(${x}px, ${y}px) rotate(${x*0.1}deg)`; card.style.opacity = '0'; document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1)).style.opacity = '1';
+      const card = document.getElementById('patientCard'); card.style.transition = 'transform 0.6s ease, opacity 0.5s ease'; card.style.transform = `translate(${x}px, ${y}px) rotate(${x*0.1}deg)`; card.style.opacity = '0'; 
+      
       setTimeout(() => {
         if (satStrikes >= 3) { clearInterval(timerInterval); terminarJuego('saturacion'); return; } 
         else if (deathStrikes >= 5) { clearInterval(timerInterval); terminarJuego('muerte'); return; }
-        cargarPaciente(); card.style.transition = 'none'; card.style.transform = ''; card.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); setTimeout(() => { card.style.transition = ''; isAnimating = false; }, 50);
+        
+        cargarPaciente(); card.style.transition = 'none'; card.style.transform = ''; card.style.opacity = '1'; 
+        document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); }); 
+        setTimeout(() => { card.style.transition = ''; isAnimating = false; }, 50);
       }, 600);
     }
 
@@ -772,12 +820,22 @@
       let moveX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX; let moveY = e.type.includes('mouse') ? e.pageY : e.touches[0].pageY;
       currentX = moveX - startX; currentY = moveY - startY;
       pCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX*0.05}deg)`;
-      document.getElementById('sTriage').style.opacity = currentX < -50 ? 0.8 : 0; document.getElementById('sUrgencias').style.opacity = currentX > 50 ? 0.8 : 0; document.getElementById('sChoque').style.opacity = currentY < -50 ? 0.8 : 0;
+      
+      // Control visual del arrastre, no aplicamos 'is-stamped' hasta soltar.
+      document.getElementById('sTriage').style.opacity = currentX < -50 ? 0.8 : 0; 
+      document.getElementById('sUrgencias').style.opacity = currentX > 50 ? 0.8 : 0; 
+      document.getElementById('sChoque').style.opacity = currentY < -50 ? 0.8 : 0;
     }
 
     function onDragEnd(e) {
       if(!isDragging) return; isDragging = false; pCard.style.transition = 'transform 0.6s ease, opacity 0.5s ease'; 
-      if (currentY < -100) animar('choque', 0, -window.innerHeight); else if (currentX > 100) animar('urgencias', window.innerWidth, 0); else if (currentX < -100) animar('triage', -window.innerWidth, 0); else { pCard.style.transform = ''; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); }
+      if (currentY < -100) animar('choque', 0, -window.innerHeight); 
+      else if (currentX > 100) animar('urgencias', window.innerWidth, 0); 
+      else if (currentX < -100) animar('triage', -window.innerWidth, 0); 
+      else { 
+          pCard.style.transform = ''; 
+          document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); }); 
+      }
       currentX = 0; currentY = 0;
     }
 
@@ -892,7 +950,6 @@
       document.getElementById('endScreen').style.display = 'flex';
       document.getElementById('finalScoreVal').textContent = Math.floor(score);
       
-      // CALCULAR RANGO DIARIO REAL
       let leaderboardLocal = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
       const hoy = window.getHoyString();
       let dailyLeaderboard = leaderboardLocal.filter(entry => entry.fecha === hoy);
@@ -908,7 +965,7 @@
 
       document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
       const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = '💾';
-      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
+      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); });
     }
 
     window.procesarPuntaje = async function() {
@@ -960,7 +1017,7 @@
             clearInterval(timerInterval); detenerMonitor(); isPlaying = false; isAnimating = false; isDragging = false; 
             document.getElementById('timerVal').classList.remove('danger'); document.getElementById('comboDisplay').className = 'combo-display'; 
             limpiarEfectosVisuales();
-            pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); volverMenu(); 
+            pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); }); volverMenu(); 
         } 
     }
 
@@ -982,7 +1039,7 @@
       document.getElementById('endScreen').style.display = 'none';
       document.getElementById('gameUI').classList.add('active'); 
       
-      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
+      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); });
       cargarPaciente(); iniciarMonitor();
       
       timerInterval = setInterval(() => {
