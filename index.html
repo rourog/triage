@@ -33,6 +33,7 @@
       height: 100vh; height: 100dvh;
       display: flex; flex-direction: column; align-items: center;
       background-color: var(--bg); 
+      /* DOT MATRIX GLOBAL */
       background-image: 
         radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.03) 100%),
         radial-gradient(rgba(100, 116, 139, 0.15) 1.5px, transparent 1.5px);
@@ -190,7 +191,7 @@
     .flash-green { background: rgba(16, 185, 129, 0.2); }
     .flash-red { background: rgba(239, 68, 68, 0.3); }
 
-    .overlay-screen { position: absolute; top: 0; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: var(--bg); }
+    .overlay-screen { position: absolute; top: 0; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: transparent; }
     
     #startScreen { padding: 4dvh 1.5rem 2dvh 1.5rem; justify-content: space-between; box-sizing: border-box; }
     .start-header { flex: 0 0 auto; margin-bottom: 1rem; }
@@ -206,16 +207,20 @@
     .btn-info { font-family: 'Oswald', sans-serif; width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background: #f1f5f9; color: var(--muted); border: 2px solid var(--line); font-size: 2.2rem; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; }
     .btn-info:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
 
-    .rank-badge { font-size: 5.5rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem; text-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    .rank-S { color: #f59e0b; text-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+    /* --- NUEVO LAYOUT END SCREEN --- */
+    .end-header-row { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; width: 100%; margin-bottom: 1rem; }
+    .end-header-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+    
+    .rank-badge { font-size: 4.5rem; font-weight: 900; line-height: 1; text-shadow: 0 5px 10px rgba(0,0,0,0.15); margin: 0;}
+    .rank-S { color: #f59e0b; text-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
     .rank-A { color: var(--brand); }
     .rank-C { color: var(--c-urgencias); }
     .rank-F { color: var(--danger); animation: pulseDanger 1s infinite alternate; }
 
-    .end-title { font-size: 2.8rem; margin: 0 0 0.5rem 0; background: white; padding: 5px 25px; border-radius: 20px; text-transform: uppercase; font-weight: 900; text-align: center; line-height: 1.1; position: relative; z-index: 2;}
-    .end-subtitle { font-size: 1.15rem; color: var(--text); background: rgba(255, 255, 255, 0.95); padding: 0.5rem 1.2rem; border-radius: 1rem; font-weight: 600; margin-top: -0.3rem; margin-bottom: 1.5rem; font-style: italic; max-width: 400px; text-align: center; font-family: system-ui, sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; z-index: 1;}
+    .end-title { font-size: 2.2rem; margin: 0 0 0.2rem 0; background: transparent; padding: 0; border-radius: 0; text-transform: uppercase; font-weight: 900; line-height: 1.1; color: var(--text); }
+    .end-subtitle { font-size: 1.1rem; color: var(--muted); background: transparent; padding: 0; border-radius: 0; font-weight: 600; margin: 0; font-style: italic; max-width: 100%; box-shadow: none; line-height: 1.2; }
 
-    .stats-container { width: 100%; max-width: 380px; margin: 0 auto 1.5rem auto; background: #f8fafc; border-radius: 1rem; border: 1px solid var(--line); padding: 1rem; font-family: system-ui, sans-serif; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);}
+    .stats-container { width: 100%; max-width: 380px; margin: 0 auto 1rem auto; background: #f8fafc; border-radius: 1rem; border: 1px solid var(--line); padding: 1rem; font-family: system-ui, sans-serif; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);}
     .stats-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.5rem; text-align: center; font-size: 1.1rem; align-items: center; }
     .stat-header { font-weight: 700; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; border-bottom: 2px solid var(--line); padding-bottom: 0.3rem;}
     .stat-lbl { font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; text-align: left; padding-left: 0.5rem;}
@@ -223,10 +228,12 @@
     .stat-err { color: var(--danger); }
     .lbl-t { color: var(--c-triage); } .lbl-u { color: var(--c-urgencias); } .lbl-c { color: var(--c-choque); }
 
-    .btn-primary { flex: 1; font-family: 'Oswald', sans-serif; padding: 1.2rem; background: var(--brand); color: white; border: none; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; box-shadow: 0 6px 0 #0f766e, 0 15px 20px rgba(14, 165, 166, 0.3); transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase;}
-    .btn-primary:active { transform: translateY(6px); box-shadow: 0 0 0 #0f766e, 0 5px 10px rgba(14, 165, 166, 0.3); }
-    
-    .btn-secondary { font-family: 'Oswald', sans-serif; padding: 1rem 2.5rem; background: #ffffff; color: var(--muted); border: 2px solid var(--line); border-radius: 2.5rem; cursor: pointer; font-weight: 600; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; width: 100%; max-width: 380px; margin-top: 15px; text-transform: uppercase;}
+    /* UNIFICACIÓN DE BOTONES */
+    .btn-stacked-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btn-primary, .btn-secondary { font-family: 'Oswald', sans-serif; width: 100%; max-width: 350px; padding: 1rem 1.5rem; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.3rem; letter-spacing: 1px; transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase; margin: 0; }
+    .btn-primary { background: var(--brand); color: white; border: none; box-shadow: 0 6px 0 #0f766e, 0 10px 15px rgba(14, 165, 166, 0.3); }
+    .btn-primary:active { transform: translateY(6px); box-shadow: 0 0 0 #0f766e, 0 5px 5px rgba(14, 165, 166, 0.3); }
+    .btn-secondary { background: #ffffff; color: var(--muted); border: 2px solid var(--line); box-shadow: 0 6px 0 var(--line); }
     .btn-secondary:active { background: var(--line); color: var(--text); transform: translateY(6px); box-shadow: 0 0 0 transparent; }
 
     .leaderboard-box { background: #ffffff; border: 2px solid var(--line); border-radius: 1rem; width: 100%; max-width: 400px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
@@ -267,23 +274,22 @@
     .inst-box li { margin-bottom: 0.5rem; }
     .inst-warn { background: #fef2f2; border-left: 4px solid var(--danger); padding: 0.8rem; border-radius: 0 0.5rem 0.5rem 0; color: #991b1b; font-weight: 600; font-size: 1rem; font-style: italic; }
 
-    .input-wrapper { position: relative; display: flex; justify-content: center; align-items: center; margin: 0.5rem 0 1.5rem 0; }
+    .input-wrapper { position: relative; display: flex; justify-content: center; align-items: center; margin: 0 0 1rem 0; }
     .input-labels-left { position: absolute; right: 100%; padding-right: 15px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
     .input-btn-right { position: absolute; left: 100%; padding-left: 15px; }
     .rank-display { font-size: 2.2rem; font-weight: 900; color: var(--muted); }
     .rank-display.is-gold { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
     .rank-display.is-silver { color: #94a3b8; }
     .rank-display.is-bronze { color: #d97706; }
-    .dr-label { font-size: 1.5rem; font-weight: bold; color: var(--text); }
     
-    .input-name { font-family: 'Oswald', sans-serif; text-transform: uppercase; -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; padding: 1rem; border: 2px solid var(--brand); border-radius: 0.6rem; font-size: 1.3rem; text-align: center; font-weight: bold; outline: none; background: #ffffff; color: var(--text); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); width: 200px; margin: 0; }
+    .input-name { font-family: 'Oswald', sans-serif; text-transform: uppercase; -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; padding: 0.8rem; border: 2px solid var(--brand); border-radius: 0.6rem; font-size: 1.3rem; text-align: center; font-weight: bold; outline: none; background: #ffffff; color: var(--text); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); width: 200px; margin: 0; }
     .input-name:focus { box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.2); }
     
-    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 54px; height: 54px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 5px 0 #0f766e, 0 4px 6px rgba(0,0,0,0.1); }
-    .btn-icon-save:active { transform: translateY(5px); box-shadow: 0 0 0 #0f766e; }
-    .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 5px 0 #047857; }
+    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 0 #0f766e; }
+    .btn-icon-save:active { transform: translateY(4px); box-shadow: 0 0 0 #0f766e; }
+    .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 4px 0 #047857; }
 
-    .final-score { font-size: 5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .final-score { font-size: 4.5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
     /* CONTENEDOR MAESTRO DEL JUEGO */
     #gameUI { display: none; width: 100%; flex: 1; flex-direction: column; align-items: center; }
@@ -311,7 +317,7 @@
       .stamp { font-size: 2.2rem; }
       
       .controls { padding: 0 1rem calc(45px + env(safe-area-inset-bottom, 10px)); gap: 10px; }
-      .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.9rem; } /* Fuente asegurada para "Urgencias" */
+      .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.9rem; } 
       .btn-arrow { font-size: 1.4rem; margin-bottom: 0px; }
       .btn-lbl { display: none; } 
       
@@ -324,20 +330,24 @@
 
       #startScreen { padding: 4dvh 1rem calc(35px + env(safe-area-inset-bottom, 10px)) 1rem; }
       .title-main { font-size: 4rem; }
-      .btn-primary { font-size: 1.2rem; padding: 0.8rem;}
-      .btn-info { width: 55px; height: 55px; font-size: 1.8rem; border-radius: 50%;}
       
-      .start-glass-panel { padding: 1.2rem; border-radius: 1.5rem; margin: auto; max-width: 95%;}
-      .end-title { font-size: 1.5rem; padding: 5px 15px; line-height: 1.1;}
-      .end-subtitle { font-size: 1rem; margin-bottom: 1rem; padding: 0.4rem 1rem; margin-top: -0.2rem; }
-      .final-score { font-size: 3.5rem; }
-      .input-wrapper { margin: 1rem 0 1.5rem 20px; }
-      .input-name { width: 140px; font-size: 1.1rem; padding: 0.8rem; }
-      .rank-display { font-size: 1.6rem; }
-      .dr-label { font-size: 1.2rem; }
-      .rank-badge { font-size: 4rem; margin-bottom: 0.2rem; }
-      .stats-container { padding: 0.8rem; margin-bottom: 1rem;}
+      .start-glass-panel { padding: 1rem; border-radius: 1.5rem; margin: auto; max-width: 95%;}
+      
+      /* GAME OVER MÓVIL SÚPER COMPACTO */
+      .end-header-row { gap: 10px; margin-bottom: 0.5rem; }
+      .rank-badge { font-size: 4rem; }
+      .end-title { font-size: 1.5rem; }
+      .end-subtitle { font-size: 0.9rem; }
+      
+      .stats-container { padding: 0.6rem; margin-bottom: 0.8rem;}
+      .stat-header { font-size: 0.75rem; }
       .stat-val { font-size: 1.1rem; }
+      
+      .final-score { font-size: 3rem; margin-bottom: 0; }
+      .input-wrapper { margin: 0.5rem 0 1rem 20px; }
+      .input-name { width: 140px; font-size: 1.1rem; padding: 0.6rem; }
+      .rank-display { font-size: 1.6rem; }
+      .btn-primary, .btn-secondary { font-size: 1.1rem; padding: 0.8rem 1rem; }
     }
   </style>
 </head>
@@ -471,7 +481,9 @@
       </button>
     </div>
 
-  </div> <div id="startScreen" class="overlay-screen bg-scrolling">
+  </div>
+
+  <div id="startScreen" class="overlay-screen">
     <div class="start-header">
       <h1 class="title-main">TRIAGE<br>EXPRESS</h1>
     </div>
@@ -488,13 +500,13 @@
 
     <div class="start-bottom">
       <div class="action-row">
-        <button onclick="iniciarJuego()" class="btn-primary">INICIAR GUARDIA</button>
+        <button onclick="iniciarJuego()" class="btn-primary" style="margin:0;">INICIAR GUARDIA</button>
         <button onclick="mostrarInstrucciones()" class="btn-info" title="Instrucciones">?</button>
       </div>
     </div>
   </div>
 
-  <div id="instructionsScreen" class="overlay-screen bg-scrolling" style="display: none;">
+  <div id="instructionsScreen" class="overlay-screen" style="display: none;">
     <div class="start-glass-panel" style="max-height: 85dvh; overflow-y: auto;">
       <div class="inst-box">
         <h2>Manual de Guardia</h2>
@@ -515,12 +527,16 @@
     </div>
   </div>
 
-  <div id="endScreen" class="overlay-screen bg-scrolling" style="display: none;">
-    <div class="start-glass-panel" style="max-height: 85dvh; overflow-y: auto;">
+  <div id="endScreen" class="overlay-screen" style="display: none;">
+    <div class="start-glass-panel" style="max-height: 95dvh; overflow-y: auto;">
       
-      <div class="rank-badge" id="rankBadgeEnd">S</div>
-      <h2 id="endTitleMsg" class="end-title">---</h2>
-      <p id="endSubtitleMsg" class="end-subtitle">---</p>
+      <div class="end-header-row">
+        <div class="rank-badge" id="rankBadgeEnd">S</div>
+        <div class="end-header-text">
+          <h2 id="endTitleMsg" class="end-title" style="color: var(--text);">---</h2>
+          <p id="endSubtitleMsg" class="end-subtitle">---</p>
+        </div>
+      </div>
       
       <div class="stats-container">
         <div class="stats-grid">
@@ -542,13 +558,12 @@
         </div>
       </div>
 
-      <p class="final-score" id="finalScoreVal" style="font-size: 3.5rem;">0</p>
-      <p style="margin-top: -0.2rem; margin-bottom: 1rem; font-weight: bold; text-transform: uppercase; color: var(--muted); font-size: 0.9rem;">Puntos Totales</p>
+      <p class="final-score" id="finalScoreVal">0</p>
+      <p style="margin-top: 0; margin-bottom: 0.5rem; font-weight: bold; text-transform: uppercase; color: var(--muted); font-size: 0.9rem;">Puntos Totales</p>
 
       <div class="input-wrapper">
         <div class="input-labels-left">
           <span id="rankDisplay" class="rank-display">#1</span>
-          <span class="dr-label">Dr.</span>
         </div>
         <input type="text" id="playerNameInput" class="input-name" placeholder="Tu Nombre..." maxlength="15">
         <div class="input-btn-right">
@@ -556,13 +571,16 @@
         </div>
       </div>
       
-      <button onclick="guardarYReiniciar()" class="btn-primary" style="margin-bottom: 10px;">NUEVA GUARDIA</button>
-      <button onclick="guardarYSalir()" class="btn-secondary" style="margin-top: 0; padding: 0.8rem 2.5rem;">SALIR AL MENÚ</button>
+      <div class="btn-stacked-container">
+        <button onclick="guardarYReiniciar()" class="btn-primary">NUEVA GUARDIA</button>
+        <button onclick="guardarYSalir()" class="btn-secondary">SALIR AL MENÚ</button>
+      </div>
+
     </div>
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.1</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.2</span>
   </div>
 
   <script>
@@ -828,7 +846,7 @@
       limpiarEfectosVisuales();
       detenerMonitor(); await sonarFlatline(); 
       
-      document.getElementById('gameUI').classList.remove('active'); // Ocultar motor del juego
+      document.getElementById('gameUI').classList.remove('active'); 
       document.getElementById('startScreen').style.display = 'none';
       document.getElementById('instructionsScreen').style.display = 'none';
       
@@ -841,7 +859,9 @@
           rangoFinal = 'F';
           titulo = "EL CARNICERO";
           subtitulo = motivo === 'muerte' ? "Demasiadas negligencias graves. Estás despedido." : "Colapsaste el hospital enviando gripas a choque.";
+          document.getElementById('endTitleMsg').style.color = "var(--danger)";
       } else {
+          document.getElementById('endTitleMsg').style.color = "var(--text)";
           if (totalErrores === 0) {
               rangoFinal = 'S';
               titulo = "DIOS DEL TRIAGE";
@@ -872,16 +892,19 @@
       document.getElementById('endScreen').style.display = 'flex';
       document.getElementById('finalScoreVal').textContent = Math.floor(score);
       
+      // CALCULAR RANGO DIARIO REAL
       let leaderboardLocal = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      const hoy = window.getHoyString();
+      let dailyLeaderboard = leaderboardLocal.filter(entry => entry.fecha === hoy);
+      
       let rangoPos = 1;
-      for (let i = 0; i < leaderboardLocal.length; i++) {
-        if (Math.floor(score) < leaderboardLocal[i].score) rangoPos++;
+      for (let i = 0; i < dailyLeaderboard.length; i++) {
+        if (Math.floor(score) < dailyLeaderboard[i].score) rangoPos++;
       }
       
       let rDisplay = document.getElementById('rankDisplay'); 
-      rDisplay.textContent = rangoPos <= 10 ? "#" + rangoPos : ">10"; 
+      rDisplay.textContent = "#" + rangoPos; 
       rDisplay.className = "rank-display"; 
-      if(rangoPos === 1) rDisplay.classList.add('is-gold'); if(rangoPos === 2) rDisplay.classList.add('is-silver'); if(rangoPos === 3) rDisplay.classList.add('is-bronze');
 
       document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
       const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = '💾';
@@ -927,7 +950,7 @@
     
     function volverMenu() { 
         document.getElementById('endScreen').style.display = 'none'; 
-        document.getElementById('gameUI').classList.remove('active'); // Apagar UI
+        document.getElementById('gameUI').classList.remove('active');
         document.getElementById('startScreen').style.display = 'flex'; 
         window.actualizarTableroVisual('lbListStart', 8); 
     }
@@ -957,7 +980,7 @@
       document.getElementById('startScreen').style.display = 'none'; 
       document.getElementById('instructionsScreen').style.display = 'none';
       document.getElementById('endScreen').style.display = 'none';
-      document.getElementById('gameUI').classList.add('active'); // Encender Motor Visual
+      document.getElementById('gameUI').classList.add('active'); 
       
       pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
       cargarPaciente(); iniciarMonitor();
@@ -976,7 +999,6 @@
     }
 
     window.onload = () => {
-      // Iniciar con el motor de juego apagado visualmente
       document.getElementById('gameUI').classList.remove('active');
       
       setTimeout(() => { window.actualizarTableroVisual('lbListStart', 8); }, 500);
