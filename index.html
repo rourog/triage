@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Triage Express - Urgencias</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --line: #cbd5e1;
+      --text: #0f172a;
+      --muted: #64748b;
+      --brand: #0ea5a6;
+      --danger: #ef4444;
+      --c-triage: #10b981;    
+      --c-urgencias: #f59e0b; 
+      --c-choque: #ef4444;    
+      --s-triage: #059669; 
+      --s-urgencias: #d97706; 
+      --s-choque: #b91c1c; 
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      background: var(--bg); color: var(--text);
+      font-family: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+      overflow: hidden; touch-action: none;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    }
+
+    .edge-indicator { position: fixed; z-index: 50; pointer-events: none; opacity: 0.6; }
+    .edge-top { top: 0; left: 0; right: 0; height: 12px; background: var(--c-choque); }
+    .edge-left { top: 0; bottom: 0; left: 0; width: 12px; background: var(--c-triage); }
+    .edge-right { top: 0; bottom: 0; right: 0; width: 12px; background: var(--c-urgencias); }
+
+    .header-bar {
+      width: 100%; max-width: clamp(600px, 45vw, 900px);
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      padding: 1rem 1.5rem; background: var(--panel); border-bottom: 2px solid var(--line);
+      font-size: 1.2rem; font-weight: bold; z-index: 5; letter-spacing: 0.5px;
+    }
+    
+    .score-box { display: flex; flex-direction: column; align-items: flex-start; }
+    .score-top { display: flex; align-items: center; color: var(--muted); text-transform: uppercase;}
+    
+    #scoreVal, .timer, .vital-val, .strike-item, .combo-display, .lb-score, .final-score {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .strikes-container { display: flex; gap: 15px; font-size: 1rem; margin-top: 2px; }
+    .strike-item { color: var(--muted); transition: color 0.3s; }
+    .strike-item.danger-sat { color: var(--c-urgencias); }
+    .strike-item.danger-death { color: var(--danger); animation: pulseDanger 1s infinite alternate; }
+
+    @keyframes pulseDanger { 0% {transform: scale(1);} 100% {transform: scale(1.2);} }
+
+    .combo-display {
+      font-size: 1.4rem; color: #f59e0b; margin-left: 10px;
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      opacity: 0; transform: scale(0.5); transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+    }
+    .combo-display.active-15 { opacity: 1; animation: pulseCombo15 0.6s infinite alternate ease-in-out; }
+    .combo-display.active-20 { opacity: 1; color: var(--danger); text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); animation: pulseCombo20 0.4s infinite alternate ease-in-out; }
+    @keyframes pulseCombo15 { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+    @keyframes pulseCombo20 { 0% { transform: scale(1.1); } 100% { transform: scale(1.3); } }
+
+    .header-bar .timer { justify-self: center; font-size: 2rem; color: var(--brand); transition: color 0.3s; }
+    .header-bar .timer.danger { animation: flashDanger 0.8s ease-in-out infinite; color: var(--danger); }
+    @keyframes flashDanger {
+      0%, 100% { color: var(--danger); opacity: 1; transform: scale(1.15); text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+      50% { color: var(--text); opacity: 0.8; transform: scale(1); text-shadow: none; }
+    }
+
+    .header-bar .exit-container { justify-self: end; display: flex; align-items: center; gap: 8px; }
+    .vol-slider { width: 60px; accent-color: var(--brand); cursor: pointer; }
+    .btn-icon-mute { background: transparent; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.2rem; transition: transform 0.1s; outline: none; }
+    .btn-icon-mute:active { transform: scale(0.8); }
+    .btn-exit-game { background: #fef2f2; border: 1px solid #fca5a5; color: var(--danger); font-family: 'Oswald', sans-serif; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.9rem; margin-left: 5px; }
+    .btn-exit-game:active { background: var(--danger); color: white; transform: scale(0.95); }
+
+    main { 
+      flex: 1; width: 100%; 
+      max-width: clamp(600px, 45vw, 900px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; position: relative; 
+    }
+
+    .patient-card {
+      width: 100%; background: var(--panel); border: 2px solid var(--line); border-radius: 1rem; display: flex; flex-direction: row; overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); position: relative; cursor: grab; will-change: transform;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+    }
+
+    .stamp { position: absolute; font-size: 3.5rem; font-weight: 700; padding: 0.2rem 1.5rem; border: 4px solid; border-radius: 0.5rem; opacity: 0; z-index: 10; pointer-events: none; text-transform: uppercase; background: rgba(255,255,255,0.9); transition: opacity 0.2s ease; }
+    .stamp-triage { top: 30px; right: 30px; color: var(--c-triage); border-color: var(--c-triage); transform: rotate(15deg); }
+    .stamp-urgencias { top: 30px; left: 30px; color: var(--c-urgencias); border-color: var(--c-urgencias); transform: rotate(-15deg); }
+    .stamp-choque { bottom: 30px; left: 50%; transform: translateX(-50%); color: var(--c-choque); border-color: var(--c-choque); }
+
+    .card-left { width: 180px; background: #f1f5f9; border-right: 2px solid var(--line); display: flex; align-items: center; justify-content: center; padding: 1.5rem; flex-shrink: 0; }
+    .card-left img { width: 100%; border-radius: 50%; background: white; border: 3px solid white; min-height: 120px; pointer-events: none; }
+
+    .card-right { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; gap: 0.6rem; pointer-events: none; }
+    .p-name { margin: 0; font-size: 1.8rem; color: var(--brand); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;}
+    .p-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-size: 1.1rem; }
+    .data-label { font-weight: 600; color: var(--muted); text-transform: uppercase;}
+    .data-val { font-weight: 400; }
+
+    .vitals-monitor { background: #f8fafc; border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.8rem; margin-top: 0.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .vital-box { display: flex; flex-direction: column; align-items: center; background: white; border-radius: 0.4rem; padding: 0.4rem; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .vital-lbl { font-size: 0.9rem; color: var(--muted); font-weight: bold; letter-spacing: 1px;}
+    .vital-val { font-size: 1.5rem; color: var(--text); font-weight: 800; }
+    .vital-box.alert { background: #fef2f2; border-color: #fca5a5; }
+    .vital-box.alert .vital-lbl { color: var(--danger); }
+    .vital-box.alert .vital-val { color: var(--danger); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
+
+    .p-reason { font-family: system-ui, -apple-system, sans-serif; margin-top: 0.8rem; padding: 0.8rem; background: #fffbeb; border-left: 4px solid var(--brand); font-size: 1.1rem; font-style: italic; line-height: 1.4; color: #334155;}
+
+    .controls { width: 100%; max-width: clamp(600px, 45vw, 900px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 1.5rem 1.5rem; align-items: end; }
+    .btn-triage { font-family: 'Oswald', sans-serif; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.8rem 0.5rem; border: none; border-radius: 16px; color: white; font-weight: 600; cursor: pointer; text-transform: uppercase; font-size: 1.2rem; transition: transform 0.1s ease, box-shadow 0.1s ease; outline: none; letter-spacing: 1px; }
+    .btn-arrow { font-size: 2rem; line-height: 1; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); pointer-events: none; }
+    .btn-lbl { font-size: 0.9rem; opacity: 0.9; pointer-events: none; letter-spacing: 0; font-weight: 400;}
+
+    .btn-izq { grid-column: 1; background: var(--c-triage); box-shadow: 0 8px 0 var(--s-triage), 0 15px 15px rgba(0,0,0,0.2); }
+    .btn-izq:active { transform: translateY(8px); box-shadow: 0 0 0 var(--s-triage), 0 5px 5px rgba(0,0,0,0.2); }
+    .btn-cen { grid-column: 2; background: var(--c-choque); transform: translateY(-25px); box-shadow: 0 8px 0 var(--s-choque), 0 15px 15px rgba(0,0,0,0.2); }
+    .btn-cen:active { transform: translateY(-17px); box-shadow: 0 0 0 var(--s-choque), 0 5px 5px rgba(0,0,0,0.2); } 
+    .btn-der { grid-column: 3; background: var(--c-urgencias); box-shadow: 0 8px 0 var(--s-urgencias), 0 15px 15px rgba(0,0,0,0.2); }
+    .btn-der:active { transform: translateY(8px); box-shadow: 0 0 0 var(--s-urgencias), 0 5px 5px rgba(0,0,0,0.2); }
+
+    .screen-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 20; transition: opacity 0.2s; }
+    .flash-green { background: rgba(16, 185, 129, 0.2); }
+    .flash-red { background: rgba(239, 68, 68, 0.3); }
+
+    .bg-scrolling { background-color: var(--bg); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3'/%3E%3Cpath d='M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4'/%3E%3Ccircle cx='20' cy='10' r='2'/%3E%3C/svg%3E"); background-size: 35px 35px; animation: scrollBg 20s linear infinite; }
+    @keyframes scrollBg { 0% { background-position: 0 0; } 100% { background-position: 35px 35px; } }
+
+    /* Contenedores Genéricos de Pantallas Superpuestas */
+    .overlay-screen { position: absolute; inset: 0; z-index: 100; overflow-y: auto; display: flex; flex-direction: column; align-items: center;}
+    
+    /* PANTALLA INICIO Y PANTALLAS MODALES */
+    #startScreen { padding: 4dvh 1.5rem 2dvh 1.5rem; justify-content: space-between; align-items: center; box-sizing: border-box; height: 100dvh; }
+    .start-header { flex: 0 0 auto; margin-bottom: 1rem; }
+    .start-middle { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0; }
+    .start-bottom { flex: 0 0 auto; width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; margin-top: 1rem; }
+    .title-main { font-size: 5.5rem; font-weight: 900; margin: 0; background: linear-gradient(135deg, var(--brand), #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.15)); line-height: 0.95; padding-bottom: 5px; text-transform: uppercase; text-align: center; }
+
+    .start-glass-panel { background: rgba(255, 255, 255, 0.95); padding: 1.5rem; width: 100%; max-width: 550px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin: auto;}
+
+    #mainLeaderboard { margin: 0; width: 100%; max-width: 450px; overflow: hidden; background: rgba(255, 255, 255, 0.95);}
+
+    .action-row { display: flex; width: 100%; gap: 12px; align-items: center; justify-content: center;}
+    .btn-info { font-family: 'Oswald', sans-serif; width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background: #f1f5f9; color: var(--muted); border: 2px solid var(--line); font-size: 2.2rem; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; }
+    .btn-info:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
+    .footer-credit { margin-top: 15px; font-size: 0.85rem; color: var(--muted); text-transform: uppercase; font-family: 'Share Tech Mono', monospace; font-weight: bold; letter-spacing: 1px; text-align: center; background: rgba(255,255,255,0.7); padding: 2px 10px; border-radius: 10px;}
+
+    .end-title { font-size: 3rem; margin: 0 0 0.5rem 0; background: white; padding: 8px 25px; border-radius: 20px; text-transform: uppercase; font-weight: 900; text-align: center; line-height: 1.1; position: relative; z-index: 2;}
+    .end-subtitle { font-size: 1.2rem; color: var(--text); background: rgba(255, 255, 255, 0.95); padding: 0.5rem 1.2rem; border-radius: 1rem; font-weight: 600; margin-top: -0.3rem; margin-bottom: 1.5rem; font-style: italic; max-width: 400px; text-align: center; font-family: system-ui, sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; z-index: 1;}
+
+    .btn-primary { flex: 1; font-family: 'Oswald', sans-serif; padding: 1.2rem; background: var(--brand); color: white; border: none; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; box-shadow: 0 6px 0 #0f766e, 0 15px 20px rgba(14, 165, 166, 0.3); transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase;}
+    .btn-primary:active { transform: translateY(6px); box-shadow: 0 0 0 #0f766e, 0 5px 10px rgba(14, 165, 166, 0.3); }
+    
+    .btn-secondary { font-family: 'Oswald', sans-serif; padding: 1rem 2.5rem; background: #ffffff; color: var(--muted); border: 2px solid var(--line); border-radius: 2.5rem; cursor: pointer; font-weight: 600; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; width: 100%; max-width: 380px; margin-top: 15px; text-transform: uppercase;}
+    .btn-secondary:active { background: var(--line); color: var(--text); transform: translateY(6px); box-shadow: 0 0 0 transparent; }
+
+    .leaderboard-box { background: #ffffff; border: 2px solid var(--line); border-radius: 1rem; width: 100%; max-width: 400px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--bg); }
+    .lb-header h3 { margin: 0; color: var(--text); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .btn-lb-toggle { font-family: 'Oswald', sans-serif; background: #f1f5f9; border: 2px solid var(--line); color: var(--brand); font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 1rem; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 3px 0 var(--line); text-transform: uppercase;}
+    .btn-lb-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
+
+    .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; margin-bottom: 0.4rem; border-radius: 0.5rem; transition: all 0.2s; position: relative; overflow: hidden;}
+    .lb-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; text-align: left; font-size: 1.2rem; text-transform: uppercase; z-index: 2;}
+    .lb-score { font-size: 1.2rem; z-index: 2; }
+
+    @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+    .lb-gold::before, .lb-silver::before, .lb-bronze::before { content: ''; position: absolute; top: 0; width: 50%; height: 100%; transform: skewX(-20deg); z-index: 1; }
+    .lb-gold { background: linear-gradient(90deg, #fffbeb, #fef3c7); border-left: 5px solid #f59e0b; color: #b45309; font-size: 1.5rem; }
+    .lb-gold .lb-score { color: #d97706; font-size: 1.5rem; }
+    .lb-gold::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); animation: shine 3s infinite linear; }
+    .lb-silver { background: linear-gradient(90deg, #f8fafc, #f1f5f9); border-left: 5px solid #94a3b8; color: #475569; font-size: 1.3rem; }
+    .lb-silver .lb-score { color: #64748b; font-size: 1.3rem; }
+    .lb-silver::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); animation: shine 4s infinite linear 1s; }
+    .lb-bronze { background: linear-gradient(90deg, #ffedd5, #ffedd5); border-left: 5px solid #d97706; color: #9a3412; font-size: 1.2rem; }
+    .lb-bronze .lb-score { color: #c2410c; font-size: 1.2rem; }
+    .lb-bronze::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: shine 5s infinite linear 2s; }
+    .lb-normal { color: var(--text); font-size: 1.1rem; padding-left: 10px; border-bottom: 1px solid #f1f5f9; border-radius: 0;}
+    .lb-normal .lb-score { color: var(--muted); font-size: 1.1rem; }
+
+    @media (max-height: 800px) { #mainLeaderboard .lb-row:nth-child(n+7) { display: none !important; } }
+    @media (max-height: 700px) { #mainLeaderboard .lb-row:nth-child(n+6) { display: none !important; } }
+    @media (max-height: 650px) { #mainLeaderboard .lb-row:nth-child(n+5) { display: none !important; } }
+    @media (max-height: 550px) { #mainLeaderboard .lb-row:nth-child(n+4) { display: none !important; } }
+    @media (max-height: 500px) { #mainLeaderboard .lb-row:nth-child(n+4) { display: none !important; } }
+
+    /* INSTRUCCIONES */
+    .inst-box { font-family: system-ui, sans-serif; text-align: left; width: 100%; color: var(--text); }
+    .inst-box h2 { font-family: 'Oswald', sans-serif; color: var(--brand); text-transform: uppercase; font-size: 1.8rem; margin-top: 0; margin-bottom: 0.5rem; text-align: center; border-bottom: 2px solid var(--line); padding-bottom: 0.5rem;}
+    .inst-box p { font-size: 1.05rem; line-height: 1.4; margin-bottom: 1rem; color: #334155; }
+    .inst-box ul { padding-left: 1.2rem; margin-bottom: 1rem; font-size: 1.05rem; color: #334155; line-height: 1.4; }
+    .inst-box li { margin-bottom: 0.5rem; }
+    .inst-warn { background: #fef2f2; border-left: 4px solid var(--danger); padding: 0.8rem; border-radius: 0 0.5rem 0.5rem 0; color: #991b1b; font-weight: 600; font-size: 1rem; font-style: italic; }
+
+    .input-wrapper { position: relative; display: flex; justify-content: center; align-items: center; margin: 0.5rem 0 1.5rem 0; }
+    .input-labels-left { position: absolute; right: 100%; padding-right: 15px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+    .input-btn-right { position: absolute; left: 100%; padding-left: 15px; }
+    .rank-display { font-size: 2.2rem; font-weight: 900; color: var(--muted); }
+    .rank-display.is-gold { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+    .rank-display.is-silver { color: #94a3b8; }
+    .rank-display.is-bronze { color: #d97706; }
+    .dr-label { font-size: 1.5rem; font-weight: bold; color: var(--text); }
+    
+    .input-name { font-family: 'Oswald', sans-serif; text-transform: uppercase; -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; padding: 1rem; border: 2px solid var(--brand); border-radius: 0.6rem; font-size: 1.3rem; text-align: center; font-weight: bold; outline: none; background: #ffffff; color: var(--text); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); width: 200px; margin: 0; }
+    .input-name:focus { box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.2); }
+    
+    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 54px; height: 54px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 5px 0 #0f766e, 0 4px 6px rgba(0,0,0,0.1); }
+    .btn-icon-save:active { transform: translateY(5px); box-shadow: 0 0 0 #0f766e; }
+    .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 5px 0 #047857; }
+
+    .final-score { font-size: 5rem; font-weight: 900; color: var(--brand); margin: 0; line-height: 1; text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+    /* ========================================================
+       OPTIMIZACIÓN EXTREMA MÓVIL
+       ======================================================== */
+    @media (max-width: 600px) {
+      body { height: 100dvh; justify-content: space-between; }
+      .header-bar { flex: 0 0 auto; padding: 0.5rem 1rem; font-size: 1rem; }
+      .timer { font-size: 1.6rem !important; }
+      .strikes-container { gap: 10px; font-size: 0.9rem; }
+      .combo-display { font-size: 1.2rem; }
+      .vol-slider { width: 45px; }
+      main { flex: 1 1 auto; padding: 3dvh 1.5rem; justify-content: flex-start; height: auto; }
+      
+      .patient-card { display: grid; grid-template-columns: 75px 1fr; grid-template-rows: auto auto auto 1fr; gap: 0.8rem 1rem; height: 100%; max-height: 100%; padding: 1.2rem; }
+      .card-left, .card-right { display: contents; }
+      .card-left img { grid-column: 1; grid-row: 1; width: 75px; height: 75px; min-height: 75px; margin: 0; border-width: 2px; }
+      .p-name { grid-column: 2; grid-row: 1; font-size: 1.6rem; margin: 0; text-align: left; align-self: center; line-height: 1.1; }
+      .p-grid { grid-column: 1 / 3; grid-row: 2; grid-template-columns: 1fr 1fr; gap: 0.4rem 0.8rem; font-size: 1rem; }
+      .p-full { grid-column: span 1; }
+      .vitals-monitor { grid-column: 1 / 3; grid-row: 3; padding: 0.6rem; gap: 0.4rem; margin: 0; }
+      .vital-lbl { font-size: 0.8rem; }
+      .vital-val { font-size: 1.3rem; }
+      .p-reason { grid-column: 1 / 3; grid-row: 4; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; margin: 0; padding: 0.8rem; text-align: center; font-family: system-ui, sans-serif;}
+      .stamp { font-size: 2.2rem; }
+      
+      .controls { flex: 0 0 auto; padding: 0 1rem 3dvh; gap: 12px; }
+      .btn-triage { padding: 0.8rem 0.2rem; border-radius: 12px; font-size: 1rem; }
+      .btn-arrow { font-size: 1.6rem; margin-bottom: 0px; }
+      .btn-lbl { display: none; } 
+      .btn-cen { transform: translateY(-12px); box-shadow: 0 5px 0 var(--s-choque); }
+      .btn-cen:active { transform: translateY(-7px); box-shadow: 0 0 0 var(--s-choque); }
+      .btn-izq { box-shadow: 0 5px 0 var(--s-triage); }
+      .btn-izq:active { transform: translateY(5px); box-shadow: 0 0 0 var(--s-triage); }
+      .btn-der { box-shadow: 0 5px 0 var(--s-urgencias); }
+      .btn-der:active { transform: translateY(5px); box-shadow: 0 0 0 var(--s-urgencias); }
+
+      #startScreen { padding: 4dvh 1rem 2dvh 1rem; }
+      .title-main { font-size: 4.2rem; }
+      .btn-primary { font-size: 1.2rem; padding: 0.8rem;}
+      .btn-info { width: 55px; height: 55px; font-size: 1.8rem; border-radius: 50%;}
+      .footer-credit { font-size: 0.75rem; margin-top: 10px;}
+      
+      .start-glass-panel { padding: 1rem; border-radius: 1rem; }
+      .end-title { font-size: 1.6rem; padding: 5px 15px; line-height: 1.1;}
+      .end-subtitle { font-size: 1.05rem; margin-bottom: 1rem; padding: 0.4rem 1rem; margin-top: -0.2rem; }
+      .final-score { font-size: 4rem; }
+      .input-wrapper { margin: 1rem 0 1.5rem 20px; }
+      .input-name { width: 140px; font-size: 1.1rem; padding: 0.8rem; }
+      .rank-display { font-size: 1.6rem; }
+      .dr-label { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <script src="db.js"></script>
+
+  <div class="edge-indicator edge-top"></div>
+  <div class="edge-indicator edge-left"></div>
+  <div class="edge-indicator edge-right"></div>
+
+  <header class="header-bar">
+    <div class="score-box">
+      <div class="score-top">Pts: <span id="scoreVal">0</span><span id="comboDisplay" class="combo-display">x1.5</span></div>
+      <div class="strikes-container">
+        <span id="satDisplay" class="strike-item" title="Camas Ocupadas Innecesariamente">🛏️ 0/3</span>
+        <span id="deathDisplay" class="strike-item" title="Negligencias Graves">💀 0/5</span>
+      </div>
+    </div>
+    
+    <div class="timer" id="timerVal">01:30</div>
+    
+    <div class="exit-container">
+      <input type="range" id="volSlider" class="vol-slider" min="0" max="0.5" step="0.01" value="0.5" title="Volumen" oninput="ajustarVolumen()">
+      <button id="btnMute" class="btn-icon-mute" onclick="toggleMute()" title="Silenciar">🔊</button>
+      <button class="btn-exit-game" onclick="confirmarSalida()">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="flashOverlay" class="screen-flash"></div>
+    <div class="patient-card" id="patientCard">
+      <div class="stamp stamp-triage" id="sTriage">TRIAGE</div>
+      <div class="stamp stamp-urgencias" id="sUrgencias">URGENCIAS</div>
+      <div class="stamp stamp-choque" id="sChoque">CHOQUE</div>
+      <div class="card-left"><img id="pImg" alt="Paciente"></div>
+      <div class="card-right">
+        <h2 class="p-name" id="pName">---</h2>
+        <div class="p-grid">
+          <div><span class="data-label">EDAD:</span> <span class="data-val" id="pAge">-</span></div>
+          <div><span class="data-label">SEXO:</span> <span class="data-val" id="pSex">-</span></div>
+          <div class="p-full"><span class="data-label">ALERGIAS:</span> <span class="data-val" id="pAllergies">-</span></div>
+          <div class="p-full"><span class="data-label">APP:</span> <span class="data-val" id="pApp">-</span></div>
+        </div>
+        <div class="vitals-monitor">
+          <div class="vital-box"><span class="vital-lbl">FC</span><span class="vital-val" id="vFc">-</span></div>
+          <div class="vital-box"><span class="vital-lbl">FR</span><span class="vital-val" id="vFr">-</span></div>
+          <div class="vital-box"><span class="vital-lbl">TA</span><span class="vital-val" id="vTa">-</span></div>
+          <div class="vital-box"><span class="vital-lbl">TEMP</span><span class="vital-val" id="vTemp">-</span></div>
+          <div class="vital-box"><span class="vital-lbl">SPO2</span><span class="vital-val" id="vSpo2">-</span></div>
+          <div class="vital-box"><span class="vital-lbl">GLUC</span><span class="vital-val" id="vGluc">-</span></div>
+        </div>
+        <div class="p-reason" id="pReason">"..."</div>
+      </div>
+    </div>
+  </main>
+
+  <div class="controls">
+    <button class="btn-triage btn-izq" onclick="teclaDecidir('triage')">
+      <span class="btn-arrow">◀</span>
+      <span>Triage <span class="btn-lbl">(A)</span></span>
+    </button>
+    <button class="btn-triage btn-cen" onclick="teclaDecidir('choque')">
+      <span class="btn-arrow">▲</span>
+      <span>Choque <span class="btn-lbl">(W)</span></span>
+    </button>
+    <button class="btn-triage btn-der" onclick="teclaDecidir('urgencias')">
+      <span class="btn-arrow">▶</span>
+      <span>Urgen <span class="btn-lbl">(D)</span></span>
+    </button>
+  </div>
+
+  <div id="startScreen" class="overlay-screen bg-scrolling">
+    <div class="start-header">
+      <h1 class="title-main">TRIAGE<br>EXPRESS</h1>
+    </div>
+    
+    <div class="start-middle">
+      <div class="leaderboard-box" id="mainLeaderboard">
+        <div class="lb-header">
+          <h3>TOP MÉDICOS</h3>
+          <button id="btnToggleLb" class="btn-lb-toggle" onclick="toggleLeaderboard()">🌍 GLOBAL</button>
+        </div>
+        <div id="lbListStart">Cargando tablero...</div>
+      </div>
+    </div>
+
+    <div class="start-bottom">
+      <div class="action-row">
+        <button onclick="iniciarJuego()" class="btn-primary">INICIAR GUARDIA</button>
+        <button onclick="mostrarInstrucciones()" class="btn-info" title="Instrucciones">?</button>
+      </div>
+      <div class="footer-credit">by ROUROG Innovations</div>
+    </div>
+  </div>
+
+  <div id="instructionsScreen" class="overlay-screen bg-scrolling" style="display: none;">
+    <div class="start-glass-panel" style="max-height: 90dvh; overflow-y: auto;">
+      <div class="inst-box">
+        <h2>Manual de Guardia</h2>
+        <p>Tu misión es simple: lee el motivo de consulta, analiza los signos vitales y <b>dirige al paciente al área correcta</b> antes de que se acabe el turno.</p>
+        
+        <div class="inst-warn" style="margin-bottom: 1rem;">
+          ⚠️ <b>Cuidado:</b> Mandar un infarto a la sala de espera te costará una demanda (y una vida). Meter un uñero a la Sala de Choque colapsará el hospital. No hagas llorar al Subdirector.
+        </div>
+        
+        <p style="font-family: 'Oswald', sans-serif; font-size: 1.3rem; margin-bottom: 0; color: var(--text);">CONTROLES:</p>
+        <ul style="margin-bottom: 1.5rem;">
+          <li>💻 <b>Escritorio:</b> Usa las flechas (◀ ▲ ▶) o las teclas A (Triage), W (Choque), D (Urgencias).</li>
+          <li>📱 <b>Móvil / Táctil:</b> Desliza la tarjeta como si estuvieras en Tinder, pero decidiendo quién vive y quién espera.</li>
+        </ul>
+        
+        <button onclick="ocultarInstrucciones()" class="btn-secondary" style="width: 100%; margin-top: 0;">ENTENDIDO (VOLVER)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="endScreen" class="overlay-screen bg-scrolling" style="display: none;">
+    <div class="start-glass-panel" style="justify-content: center; max-height: 95dvh; overflow-y: auto;">
+      <h2 id="endTitleMsg" class="end-title">---</h2>
+      <p id="endSubtitleMsg" class="end-subtitle">---</p>
+      
+      <p class="final-score" id="finalScoreVal">0</p>
+      <p style="margin-top: 0.2rem; margin-bottom: 0.5rem; font-weight: bold; text-transform: uppercase; color: var(--muted); font-size: 0.9rem;">Puntos Obtenidos</p>
+
+      <div class="input-wrapper">
+        <div class="input-labels-left">
+          <span id="rankDisplay" class="rank-display">#1</span>
+          <span class="dr-label">Dr.</span>
+        </div>
+        <input type="text" id="playerNameInput" class="input-name" placeholder="Tu Nombre..." maxlength="15">
+        <div class="input-btn-right">
+          <button id="btnPlaceboSave" class="btn-icon-save" onclick="accionGuardarPlacebo()" title="Guardar">💾</button>
+        </div>
+      </div>
+      
+      <button onclick="guardarYReiniciar()" class="btn-primary" style="margin-bottom: 15px;">NUEVA GUARDIA</button>
+      <button onclick="guardarYSalir()" class="btn-secondary" style="margin-top: 0;">SALIR AL MENÚ</button>
+    </div>
+  </div>
+
+  <script>
+    // --- SISTEMA DE AUDIO ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isMuted = false;
+    let monitorInterval = null;
+    let monitorRate = 1000; 
+    let isErrorState = false;
+    let errorTimeout = null;
+
+    function ajustarVolumen() {
+      let vol = parseFloat(document.getElementById('volSlider').value);
+      localStorage.setItem('triageVolume', vol); 
+      if (vol > 0 && isMuted) { isMuted = false; document.getElementById('btnMute').textContent = '🔊'; }
+      if (vol === 0 && !isMuted) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; }
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      document.getElementById('btnMute').textContent = isMuted ? '🔇' : '🔊';
+      if(isMuted) { document.getElementById('volSlider').value = 0; } 
+      else { let savedVol = parseFloat(localStorage.getItem('triageVolume')) || 0.5; if (savedVol === 0) savedVol = 0.5; document.getElementById('volSlider').value = savedVol; }
+    }
+
+    function getVol() { return isMuted ? 0 : parseFloat(document.getElementById('volSlider').value); }
+
+    function sonar(tipo) {
+      let vol = getVol();
+      if (vol === 0) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      if (tipo === 'acierto') {
+        osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(vol * 2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+      } else if (tipo === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(vol * 3, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+      } else if (tipo === 'combo') {
+        const freqs = [523.25, 659.25, 783.99, 1046.50]; 
+        for(let i = 0; i < 8; i++) {
+          const oscC = audioCtx.createOscillator(); const gainC = audioCtx.createGain();
+          oscC.connect(gainC); gainC.connect(audioCtx.destination);
+          oscC.type = 'square'; oscC.frequency.value = freqs[i % freqs.length];
+          let startTime = audioCtx.currentTime + (i * 0.08);
+          gainC.gain.setValueAtTime(vol * 0.8, startTime); gainC.gain.linearRampToValueAtTime(0, startTime + 0.07);
+          oscC.start(startTime); oscC.stop(startTime + 0.08);
+        }
+      }
+    }
+
+    function latidoMonitor() {
+      let vol = getVol(); if (vol === 0 || !isPlaying) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = 'sine'; osc.frequency.setValueAtTime(monitorRate < 1000 ? 750 : 600, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function evaluarRitmoMonitor(timeLeft) {
+      if (!isPlaying) return; 
+      let targetRate = 1000; 
+      if (isErrorState) targetRate = 600; else if (timeLeft <= 15 && timeLeft > 0) targetRate = 460; 
+      if (targetRate !== monitorRate) { monitorRate = targetRate; clearInterval(monitorInterval); monitorInterval = setInterval(latidoMonitor, monitorRate); }
+    }
+
+    function iniciarMonitor() { if (monitorInterval) clearInterval(monitorInterval); isErrorState = false; monitorRate = 1000; latidoMonitor(); monitorInterval = setInterval(latidoMonitor, monitorRate); }
+    function detenerMonitor() { if (monitorInterval) clearInterval(monitorInterval); monitorInterval = null; }
+    function sonarFlatline() {
+      return new Promise((resolve) => {
+        let vol = getVol(); if (vol === 0) { setTimeout(resolve, 500); return; }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 1.5); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 2.0); 
+        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 2.0);
+        setTimeout(resolve, 2000);
+      });
+    }
+
+    let score = 0, timeLeft = 90, pacienteActual = null, isPlaying = false, isAnimating = false;
+    let timerInterval = null, recordGuardado = false, comboStreak = 0, multiplier = 1, satStrikes = 0, deathStrikes = 0;
+    let currentLbView = 'global';
+
+    const mensajesMuerte = [
+      { t: "EL CARNICERO", s: "Esa presión de 60/40 no era por el susto de la combi." },
+      { t: "SOCIO DEL PANTEÓN", s: "Las funerarias locales te van a empezar a pagar comisión." },
+      { t: "DOCTOR MUERTE", s: "Confundiste un infarto masivo con un empacho." },
+      { t: "PELIGRO PÚBLICO", s: "Te quitarían la cédula profesional... si es que ya la tienes." },
+      { t: "EL MATASANOS", s: "Hasta el guardia de seguridad de la entrada hace mejor triage." },
+      { t: "PASE A SAN PEDRO", s: "Los mandaste a sentarse a la sala de espera... pero del más allá." },
+      { t: "EL CÓDIGO NEGRO", s: "Cinco pacientes en el pasillo... y no precisamente esperando su receta." },
+      { t: "GUÍA DE CARONTE", s: "Tu triage es tan malo que el hospital ya parece sala de velación." },
+      { t: "EX-MÉDICO", s: "Ve preparando el Uber, porque tu carrera terminó hoy." },
+      { t: "EL SEPULTURERO", s: "Para la próxima, dales una pala en lugar de una ficha de consulta." }
+    ];
+
+    const mensajesSaturacion = [
+      { t: "EL EXAGERADO", s: "¡Entiende, un uñero no necesita cama de choque!" },
+      { t: "TERROR DEL SUBDIRECTOR", s: "Colapsaste Urgencias con puros resfriados y gente triste." },
+      { t: "DOCTOR HOTELES", s: "Esto es un hospital público, no un Airbnb." },
+      { t: "SÍNDROME DE PÁNICO", s: "Te asustaste tú más rápido que el paciente." },
+      { t: "EL REGALADOR", s: "Metiste a piso hasta al que venía a vender tamales afuera." },
+      { t: "MIP ASUSTADO", s: "Llenar el hospital de cualquier cosa no te hace buen médico." },
+      { t: "EL COLAPSADOR", s: "Urgencias parece el Metro en hora pico gracias a tus decisiones." },
+      { t: "ADMINISTRATIVO", s: "El jefe te busca para que tú pagues la nómina de todos los que ingresaste." },
+      { t: "DOÑA CAMITAS", s: "Metiste a urgencias hasta al que solo venía a preguntar por la farmacia." },
+      { t: "CONSULTORIO GENERAL", s: "Traes mentalidad de Farmacias Similares en un hospital de tercer nivel." }
+    ];
+
+    const mensajesExito = [
+      { t: "SUPERVIVIENTE", s: "Sobreviviste al turno. Ve por un café al OXXO, te lo ganaste." },
+      { t: "EL ADSCRITO", s: "Triage impecable. Los internos te tienen miedo y respeto." },
+      { t: "HÉROE DE GUARDIA", s: "Ni una cama desperdiciada, ni una defunción. Eres leyenda." },
+      { t: "MÁQUINA DE CAFÉ", s: "Tu sangre es 70% cafeína y 30% instinto clínico." },
+      { t: "EL INTOCABLE", s: "El subdirector intentó quejarse pero tus diagnósticos son perfectos." },
+      { t: "EL SOBREVIVIENTE", s: "La guardia fue un caos, pero tú saliste caminando." },
+      { t: "CÉDULA INTACTA", s: "Conservas tu derecho a recetar paracetamol por otro día." },
+      { t: "DIOS DEL TRIAGE", s: "Clasificas pacientes más rápido de lo que el MIP se duerme parado." },
+      { t: "VACACIONES!", s: "Apaga el monitor y corre. Antes de que llegue el relevo tarde." },
+      { t: "EL VETERANO", s: "Una guardia más al currículum. Los fantasmas del hospital te saludan." }
+    ];
+
+    let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
+    function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function rellenarMazos() { poolTriage = shuffleArray(motivosTriageGenerico); poolUrgencias = shuffleArray(motivosUrgenciasGenerico); poolBanco = shuffleArray(bancoPacientes); }
+
+    function generarVitales(estado) {
+      let r = {};
+      if (estado === 'normal') r = { fc: [65, 90], fr: [14, 18], sys: [110, 125], dia: [70, 85], temp: [36.2, 37.4], spo2: [95, 100], gluc: [80, 110] }; 
+      else if (estado === 'alterado') r = { fc: [105, 128], fr: [20, 26], sys: [165, 190], dia: [105, 115], temp: [39.8, 40.5], spo2: [89, 94], gluc: [130, 170] }; 
+      else if (estado === 'choque') r = { fc: [135, 170], fr: [28, 35], sys: [205, 240], dia: [125, 140], temp: [35.0, 36.0], spo2: [70, 79], gluc: [40, 60] }; 
+      return { fc: Math.floor(Math.random() * (r.fc[1] - r.fc[0] + 1)) + r.fc[0], fr: Math.floor(Math.random() * (r.fr[1] - r.fr[0] + 1)) + r.fr[0], ta: `${Math.floor(Math.random()*(r.sys[1]-r.sys[0])+r.sys[0])}/${Math.floor(Math.random()*(r.dia[1]-r.dia[0])+r.dia[0])}`, temp: (Math.random() * (r.temp[1] - r.temp[0]) + r.temp[0]).toFixed(1), spo2: Math.floor(Math.random() * (r.spo2[1] - r.spo2[0] + 1)) + r.spo2[0], gluc: Math.floor(Math.random() * (r.gluc[1] - r.gluc[0] + 1)) + r.gluc[0] };
+    }
+
+    function cargarPaciente() {
+      const prob = Math.random(); let p;
+      if (prob < 0.40) { if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico); const mot = poolTriage.pop(); p = { edad: Math.floor(Math.random()*40+18), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: "triage", signos: generarVitales('normal') }; } 
+      else if (prob < 0.50) { if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico); const mot = poolTriage.pop(); const isChoque = Math.random() > 0.5; p = { edad: Math.floor(Math.random()*60+18), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: isChoque ? "choque" : "urgencias", signos: generarVitales(isChoque ? 'choque' : 'alterado') }; } 
+      else if (prob < 0.75) { if(poolUrgencias.length === 0) poolUrgencias = shuffleArray(motivosUrgenciasGenerico); const mot = poolUrgencias.pop(); p = { edad: Math.floor(Math.random()*50+15), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: "urgencias", signos: generarVitales('alterado') }; } 
+      else { if(poolBanco.length === 0) poolBanco = shuffleArray(bancoPacientes); const base = poolBanco.pop(); p = { ...base, signos: generarVitales(base.destino === 'choque' ? 'alterado' : 'normal') }; if (base.fc) p.signos.fc = base.fc; if (base.ta) p.signos.ta = base.ta; if (base.spo2) p.signos.spo2 = base.spo2; if (base.temp) p.signos.temp = base.temp; }
+
+      const esH = p.sexo === "M"; p.nombre = (esH ? Nombres.M : Nombres.F)[Math.floor(Math.random()*(esH ? Nombres.M.length : Nombres.F.length))]; p.apellido = Nombres.Ap[Math.floor(Math.random()*Nombres.Ap.length)]; p.alergias = p.alergias || AlergiasMundo[Math.floor(Math.random()*AlergiasMundo.length)]; p.app = p.app || "Ninguno"; pacienteActual = p;
+
+      document.getElementById('pName').textContent = `${p.nombre} ${p.apellido}`; document.getElementById('pAge').textContent = p.edad + " años"; document.getElementById('pSex').textContent = esH ? "Masculino" : "Femenino"; document.getElementById('pAllergies').textContent = p.alergias; document.getElementById('pApp').textContent = p.app; document.getElementById('pReason').textContent = `"${p.motivoConsulta}"`;
+
+      const sig = p.signos; const [sys, dia] = sig.ta.split('/').map(Number);
+      actualizarVital('vFc', sig.fc, sig.fc > 100 || sig.fc < 50); actualizarVital('vFr', sig.fr, false); actualizarVital('vTa', sig.ta, sys > 160 || dia > 100 || sys < 90); actualizarVital('vTemp', sig.temp, sig.temp >= 39.5 || sig.temp <= 35.5); actualizarVital('vSpo2', sig.spo2, sig.spo2 < 90); actualizarVital('vGluc', sig.gluc, sig.gluc > 180 || sig.gluc < 65);
+
+      const listEst = esH ? ["shavedSides", "shortCurly", "shortFlat", "shortRound", "shortWaved", "sides", "theCaesar"] : ["bigHair", "bob", "bun", "curly", "curvy", "dreads", "frida"];
+      const img = document.getElementById('pImg'); img.style.display = 'none'; img.src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${Math.random()}&top=${listEst[Math.floor(Math.random()*listEst.length)]}&backgroundColor=eef3f9`; img.onload = () => { img.style.display = 'block'; };
+    }
+
+    function actualizarVital(id, val, alerta) { const el = document.getElementById(id); el.textContent = val; el.parentElement.classList.toggle('alert', alerta); }
+
+    function teclaDecidir(dest) { if (!isPlaying || isAnimating) return; let x = 0, y = 0; if (dest === 'triage') x = -window.innerWidth; if (dest === 'urgencias') x = window.innerWidth; if (dest === 'choque') y = -window.innerHeight; animar(dest, x, y); }
+
+    function animar(decision, x, y) {
+      isAnimating = true; const comboEl = document.getElementById('comboDisplay');
+      if (decision === pacienteActual.destino) {
+        comboStreak++;
+        if (comboStreak === 5 && multiplier < 1.5) { multiplier = 1.5; sonar('combo'); comboEl.textContent = 'x1.5'; comboEl.className = 'combo-display active-15'; } 
+        else if (comboStreak === 10 && multiplier < 2) { multiplier = 2.0; sonar('combo'); comboEl.textContent = 'x2.0'; comboEl.className = 'combo-display active-20'; }
+        score += (100 * multiplier); document.getElementById('scoreVal').textContent = Math.floor(score); sonar('acierto'); flash('flash-green');
+      } else {
+        comboStreak = 0; multiplier = 1; comboEl.className = 'combo-display'; score -= 200; document.getElementById('scoreVal').textContent = Math.floor(score); sonar('error'); flash('flash-red');
+        isErrorState = true; evaluarRitmoMonitor(timeLeft); if(errorTimeout) clearTimeout(errorTimeout); errorTimeout = setTimeout(() => { isErrorState = false; evaluarRitmoMonitor(timeLeft); }, 3000);
+        if (pacienteActual.destino === 'triage') { satStrikes++; document.getElementById('satDisplay').textContent = `🛏️ ${satStrikes}/3`; document.getElementById('satDisplay').classList.add('danger-sat'); setTimeout(() => document.getElementById('satDisplay').classList.remove('danger-sat'), 500); } 
+        else { deathStrikes++; document.getElementById('deathDisplay').textContent = `💀 ${deathStrikes}/5`; document.getElementById('deathDisplay').classList.add('danger-death'); }
+      }
+
+      const card = document.getElementById('patientCard'); card.style.transition = 'transform 0.6s ease, opacity 0.5s ease'; card.style.transform = `translate(${x}px, ${y}px) rotate(${x*0.1}deg)`; card.style.opacity = '0'; document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1)).style.opacity = '1';
+      setTimeout(() => {
+        if (satStrikes >= 3) { clearInterval(timerInterval); terminarJuego('saturacion'); return; } 
+        else if (deathStrikes >= 5) { clearInterval(timerInterval); terminarJuego('muerte'); return; }
+        cargarPaciente(); card.style.transition = 'none'; card.style.transform = ''; card.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); setTimeout(() => { card.style.transition = ''; isAnimating = false; }, 50);
+      }, 600);
+    }
+
+    function flash(c) { const f = document.getElementById('flashOverlay'); f.className = 'screen-flash ' + c; f.style.opacity = '1'; setTimeout(() => f.style.opacity = '0', 150); }
+
+    // --- DRAG TÁCTIL BLINDADO ---
+    const pCard = document.getElementById('patientCard');
+    let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
+
+    function onDragStart(e) {
+      if(!isPlaying || isAnimating) return;
+      isDragging = true; pCard.style.transition = 'none'; 
+      startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX; startY = e.type.includes('mouse') ? e.pageY : e.touches[0].pageY;
+    }
+
+    function onDragMove(e) {
+      if(!isDragging) return;
+      let moveX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX; let moveY = e.type.includes('mouse') ? e.pageY : e.touches[0].pageY;
+      currentX = moveX - startX; currentY = moveY - startY;
+      pCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX*0.05}deg)`;
+      document.getElementById('sTriage').style.opacity = currentX < -50 ? 0.8 : 0; document.getElementById('sUrgencias').style.opacity = currentX > 50 ? 0.8 : 0; document.getElementById('sChoque').style.opacity = currentY < -50 ? 0.8 : 0;
+    }
+
+    function onDragEnd(e) {
+      if(!isDragging) return; isDragging = false; pCard.style.transition = 'transform 0.6s ease, opacity 0.5s ease'; 
+      if (currentY < -100) animar('choque', 0, -window.innerHeight); else if (currentX > 100) animar('urgencias', window.innerWidth, 0); else if (currentX < -100) animar('triage', -window.innerWidth, 0); else { pCard.style.transform = ''; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); }
+      currentX = 0; currentY = 0;
+    }
+
+    pCard.addEventListener('mousedown', onDragStart); window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', onDragEnd);
+    pCard.addEventListener('touchstart', onDragStart, {passive: true}); window.addEventListener('touchmove', onDragMove, {passive: true}); window.addEventListener('touchend', onDragEnd);
+    document.onkeydown = (e) => { if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') teclaDecidir('triage'); if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') teclaDecidir('urgencias'); if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') teclaDecidir('choque'); };
+
+    function toggleLeaderboard() {
+      currentLbView = currentLbView === 'global' ? 'daily' : 'global';
+      const btn = document.getElementById('btnToggleLb');
+      btn.textContent = currentLbView === 'global' ? '🌍 GLOBAL' : '📅 HOY';
+      actualizarTableroVisual('lbListStart', 8);
+    }
+
+    function getHoyString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function calcularRango(nuevoPuntaje) {
+      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      let rank = 1;
+      for (let i = 0; i < leaderboard.length; i++) {
+        if (nuevoPuntaje < leaderboard[i].score) rank++;
+      }
+      return rank;
+    }
+
+    function actualizarTableroVisual(elementId, limite) {
+      const container = document.getElementById(elementId); 
+      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      
+      if (currentLbView === 'daily') {
+          const hoy = getHoyString();
+          leaderboard = leaderboard.filter(entry => entry.fecha === hoy);
+      }
+
+      if (leaderboard.length === 0) { 
+        container.innerHTML = `<p style='color: var(--muted); font-style: italic; text-align:center; font-size:1.1rem; padding: 1rem 0;'>Nadie ha jugado ${currentLbView === 'global' ? 'aún' : 'hoy'}.<br>¡Sé el primero!</p>`; 
+        return; 
+      }
+
+      const listHtml = leaderboard.slice(0, limite).map((entry, idx) => {
+        let claseCSS = "lb-normal"; let prefijo = `#${idx + 1}`; 
+        if (idx === 0) { claseCSS = "lb-gold"; prefijo = "👑 #1"; } 
+        else if (idx === 1) { claseCSS = "lb-silver"; } 
+        else if (idx === 2) { claseCSS = "lb-bronze"; }
+        return `<div class="lb-row ${claseCSS}"><span class="lb-name">${prefijo} ${entry.name}</span><span class="lb-score">${entry.score} pts</span></div>`;
+      }).join(''); 
+      container.innerHTML = listHtml;
+    }
+
+    function mostrarInstrucciones() {
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('instructionsScreen').style.display = 'flex';
+    }
+
+    function ocultarInstrucciones() {
+      document.getElementById('instructionsScreen').style.display = 'none';
+      document.getElementById('startScreen').style.display = 'flex';
+    }
+
+    async function terminarJuego(motivo = 'tiempo') {
+      isPlaying = false; isAnimating = false; recordGuardado = false; isDragging = false;
+      document.getElementById('timerVal').textContent = "00:00"; document.getElementById('timerVal').classList.remove('danger');
+      document.getElementById('comboDisplay').className = 'combo-display';
+      detenerMonitor(); await sonarFlatline(); 
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('instructionsScreen').style.display = 'none';
+      
+      const titleMsg = document.getElementById('endTitleMsg');
+      const subMsg = document.getElementById('endSubtitleMsg');
+      
+      let pool;
+      if (motivo === 'saturacion') { pool = mensajesSaturacion; titleMsg.style.color = "var(--c-urgencias)"; }
+      else if (motivo === 'muerte') { pool = mensajesMuerte; titleMsg.style.color = "var(--danger)"; }
+      else { pool = mensajesExito; titleMsg.style.color = "var(--c-triage)"; }
+      
+      const pick = pool[Math.floor(Math.random()*pool.length)];
+      titleMsg.textContent = pick.t;
+      subMsg.textContent = pick.s;
+
+      document.getElementById('endScreen').style.display = 'flex';
+      document.getElementById('finalScoreVal').textContent = Math.floor(score);
+      
+      let rango = calcularRango(score);
+      let rDisplay = document.getElementById('rankDisplay'); rDisplay.textContent = "#" + rango; rDisplay.className = "rank-display"; 
+      if(rango === 1) rDisplay.classList.add('is-gold'); if(rango === 2) rDisplay.classList.add('is-silver'); if(rango === 3) rDisplay.classList.add('is-bronze');
+
+      document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
+      const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = '💾';
+      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
+    }
+
+    function procesarPuntaje() {
+      if (recordGuardado) return; 
+      let nombre = document.getElementById('playerNameInput').value.trim() || "Anónimo";
+      localStorage.setItem('triageLastName', nombre);
+      let leaderboard = JSON.parse(localStorage.getItem('triageLeaderboard')) || [];
+      
+      leaderboard.push({ name: nombre, score: Math.floor(score), fecha: getHoyString(), timestamp: Date.now() });
+      leaderboard.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return (a.timestamp || 0) - (b.timestamp || 0); });
+      
+      localStorage.setItem('triageLeaderboard', JSON.stringify(leaderboard));
+      recordGuardado = true; 
+    }
+
+    function accionGuardarPlacebo() { procesarPuntaje(); const btn = document.getElementById('btnPlaceboSave'); btn.classList.add('saved'); btn.innerHTML = '✔'; setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '💾'; }, 1500); }
+    function guardarYReiniciar() { procesarPuntaje(); iniciarJuego(); }
+    function guardarYSalir() { procesarPuntaje(); document.getElementById('endScreen').style.display = 'none'; document.getElementById('startScreen').style.display = 'flex'; actualizarTableroVisual('lbListStart', 8); }
+    function volverMenu() { document.getElementById('endScreen').style.display = 'none'; document.getElementById('startScreen').style.display = 'flex'; actualizarTableroVisual('lbListStart', 8); }
+    function confirmarSalida() { if(confirm("¿Abandonar guardia?")) { clearInterval(timerInterval); detenerMonitor(); isPlaying = false; isAnimating = false; isDragging = false; document.getElementById('timerVal').classList.remove('danger'); document.getElementById('comboDisplay').className = 'combo-display'; pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0'); volverMenu(); } }
+
+    function iniciarJuego() {
+      if (timerInterval) clearInterval(timerInterval);
+      score = 0; timeLeft = 90; isPlaying = true; isAnimating = false; isDragging = false; comboStreak = 0; multiplier = 1; satStrikes = 0; deathStrikes = 0;
+      document.getElementById('satDisplay').textContent = "🛏️ 0/3"; document.getElementById('deathDisplay').textContent = "💀 0/5";
+      document.getElementById('satDisplay').classList.remove('danger-sat'); document.getElementById('deathDisplay').classList.remove('danger-death');
+      rellenarMazos(); document.getElementById('scoreVal').textContent = "0"; document.getElementById('comboDisplay').className = 'combo-display';
+      document.getElementById('timerVal').classList.remove('danger'); 
+      document.getElementById('startScreen').style.display = 'none'; 
+      document.getElementById('instructionsScreen').style.display = 'none';
+      document.getElementById('endScreen').style.display = 'none';
+      pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => s.style.opacity = '0');
+      cargarPaciente(); iniciarMonitor();
+      timerInterval = setInterval(() => {
+        timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60; document.getElementById('timerVal').textContent = `0${m}:${s<10?'0':''}${s}`;
+        if (timeLeft <= 15 && timeLeft > 0) { document.getElementById('timerVal').classList.add('danger'); }
+        evaluarRitmoMonitor(timeLeft); if (timeLeft <= 0) { clearInterval(timerInterval); terminarJuego('tiempo'); }
+      }, 1000);
+    }
+
+    window.onload = () => {
+      actualizarTableroVisual('lbListStart', 8);
+      let savedVol = localStorage.getItem('triageVolume');
+      if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; } } 
+      else { document.getElementById('volSlider').value = 0.5; }
+    };
+  </script>
+</body>
+</html>
