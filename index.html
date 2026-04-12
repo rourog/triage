@@ -150,54 +150,52 @@
       transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
     }
 
-    /* --- NUEVO DISEÑO DEL SELLO (ORGÁNICO E IMPACTANTE) --- */
     .stamp { 
-      position: absolute; 
-      top: 50%; left: 50%; /* Centrado absoluto */
-      font-size: 5rem; 
-      font-weight: 900; 
-      padding: 0.5rem 2rem; 
-      border: 6px solid; 
-      border-radius: 1rem; 
-      opacity: 0; 
-      z-index: 100; 
-      pointer-events: none; 
-      text-transform: uppercase; 
-      background: rgba(255,255,255,0.85); 
-      backdrop-filter: blur(2px);
-      transition: opacity 0.2s ease;
+      position: absolute; top: 50%; left: 50%; font-size: 5rem; font-weight: 900; padding: 0.5rem 2rem; 
+      border: 6px solid; border-radius: 1rem; opacity: 0; z-index: 100; pointer-events: none; 
+      text-transform: uppercase; background: rgba(255,255,255,0.85); backdrop-filter: blur(2px); transition: opacity 0.2s ease;
     }
     
-    /* Variables de rotación para cada tipo */
     .stamp-triage { color: var(--c-triage); border-color: var(--c-triage); --rot: 20deg; transform: translate(-50%, -50%) rotate(20deg); }
     .stamp-urgencias { color: var(--c-urgencias); border-color: var(--c-urgencias); --rot: -20deg; transform: translate(-50%, -50%) rotate(-20deg); }
     .stamp-choque { color: var(--c-choque); border-color: var(--c-choque); --rot: -5deg; transform: translate(-50%, -50%) rotate(-5deg); }
 
-    /* Animación de Impacto Físico */
-    .stamp.is-stamped {
-      animation: stampHit 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    /* Efecto "Polvo / Onda Expansiva" */
-    .stamp.is-stamped::after {
-      content: ''; position: absolute; inset: -6px; 
-      border: 6px solid inherit; border-color: inherit; border-radius: 1rem;
-      animation: dustRing 0.4s ease-out forwards;
-    }
+    .stamp.is-stamped { animation: stampHit 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .stamp.is-stamped::after { content: ''; position: absolute; inset: -6px; border: 6px solid inherit; border-color: inherit; border-radius: 1rem; animation: dustRing 0.4s ease-out forwards; }
 
     @keyframes stampHit {
       0% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(1.6); opacity: 0; }
       50% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.95); opacity: 1; }
       100% { transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); opacity: 1; }
     }
-    
-    @keyframes dustRing {
-      0% { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(1.3); opacity: 0; }
-    }
+    @keyframes dustRing { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
 
-    .card-left { width: 180px; background: #f1f5f9; border-right: 2px solid var(--line); display: flex; align-items: center; justify-content: center; padding: 1.5rem; flex-shrink: 0; }
-    .card-left img { width: 100%; border-radius: 50%; background: white; border: 3px solid white; min-height: 120px; pointer-events: none; }
+    /* --- NUEVO PLACEHOLDER (SKELETON) Y TAMAÑO DE IMAGEN --- */
+    .card-left { 
+      width: 220px; /* Aumentado para imagen más grande en escritorio */
+      background: #f1f5f9; border-right: 2px solid var(--line); 
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem; flex-shrink: 0; 
+    }
+    
+    .avatar-wrapper { 
+      width: 150px; height: 150px; 
+      border-radius: 50%; background: #cbd5e1; border: 4px solid white; 
+      overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+      position: relative; flex-shrink: 0;
+    }
+    /* Animación de carga tipo shimmer */
+    .avatar-wrapper::before { 
+      content: ''; position: absolute; inset: 0; 
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); 
+      transform: translateX(-100%); animation: shimmer 1.5s infinite; z-index: 1;
+    }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+    .avatar-wrapper img { 
+      width: 100%; height: 100%; object-fit: cover; 
+      opacity: 0; /* Inicia invisible hasta que cargue */
+      transition: opacity 0.4s ease; position: relative; z-index: 2; pointer-events: none; 
+    }
 
     .card-right { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; gap: 0.6rem; pointer-events: none; }
     .p-name { margin: 0; font-size: 1.8rem; color: var(--brand); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;}
@@ -341,9 +339,11 @@
       
       main { padding: 1rem 1.5rem; }
       
-      .patient-card { display: grid; grid-template-columns: 75px 1fr; grid-template-rows: auto auto auto 1fr; gap: 0.5rem 0.8rem; height: 100%; max-height: 100%; padding: 1rem; }
+      /* --- EN LA VERSIÓN MÓVIL ASEGURAMOS QUE LA IMAGEN ESTÉ EN UN WRAPPER FIJO --- */
+      .patient-card { display: grid; grid-template-columns: 80px 1fr; grid-template-rows: auto auto auto 1fr; gap: 0.5rem 0.8rem; height: 100%; max-height: 100%; padding: 1rem; }
       .card-left, .card-right { display: contents; }
-      .card-left img { grid-column: 1; grid-row: 1; width: 70px; height: 70px; min-height: 70px; margin: 0; border-width: 2px; }
+      .avatar-wrapper { grid-column: 1; grid-row: 1; width: 80px; height: 80px; margin: 0; border-width: 3px; align-self: center; }
+      
       .p-name { grid-column: 2; grid-row: 1; font-size: 1.4rem; margin: 0; text-align: left; align-self: center; line-height: 1.1; }
       .p-grid { grid-column: 1 / 3; grid-row: 2; grid-template-columns: 1fr 1fr; gap: 0.3rem 0.6rem; font-size: 0.95rem; }
       .p-full { grid-column: span 1; }
@@ -352,7 +352,7 @@
       .vital-val { font-size: 1.2rem; }
       .p-reason { grid-column: 1 / 3; grid-row: 4; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; margin: 0; padding: 0.5rem; text-align: center; font-family: system-ui, sans-serif;}
       
-      /* --- SELLO EN MÓVIL --- */
+      /* SELLO EN MÓVIL */
       .stamp { font-size: 3.5rem; padding: 0.4rem 1.2rem; border-width: 4px; }
       .stamp.is-stamped::after { inset: -4px; border-width: 4px; }
       
@@ -483,7 +483,11 @@
         <div class="stamp stamp-triage" id="sTriage">TRIAGE</div>
         <div class="stamp stamp-urgencias" id="sUrgencias">URGENCIAS</div>
         <div class="stamp stamp-choque" id="sChoque">CHOQUE</div>
-        <div class="card-left"><img id="pImg" alt="Paciente"></div>
+        <div class="card-left">
+          <div class="avatar-wrapper">
+             <img id="pImg" alt="Paciente">
+          </div>
+        </div>
         <div class="card-right">
           <h2 class="p-name" id="pName">---</h2>
           <div class="p-grid">
@@ -520,9 +524,7 @@
       </button>
     </div>
 
-  </div>
-
-  <div id="startScreen" class="overlay-screen">
+  </div> <div id="startScreen" class="overlay-screen">
     <div class="start-header">
       <h1 class="title-main">TRIAGE<br>EXPRESS</h1>
     </div>
@@ -619,7 +621,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.3</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.4</span>
   </div>
 
   <script>
@@ -762,8 +764,11 @@
       const sig = p.signos; const [sys, dia] = sig.ta.split('/').map(Number);
       actualizarVital('vFc', sig.fc, sig.fc > 100 || sig.fc < 50); actualizarVital('vFr', sig.fr, false); actualizarVital('vTa', sig.ta, sys > 160 || dia > 100 || sys < 90); actualizarVital('vTemp', sig.temp, sig.temp >= 39.5 || sig.temp <= 35.5); actualizarVital('vSpo2', sig.spo2, sig.spo2 < 90); actualizarVital('vGluc', sig.gluc, sig.gluc > 180 || sig.gluc < 65);
 
+      const img = document.getElementById('pImg'); 
+      img.style.opacity = '0'; 
       const listEst = esH ? ["shavedSides", "shortCurly", "shortFlat", "shortRound", "shortWaved", "sides", "theCaesar"] : ["bigHair", "bob", "bun", "curly", "curvy", "dreads", "frida"];
-      const img = document.getElementById('pImg'); img.style.display = 'none'; img.src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${Math.random()}&top=${listEst[Math.floor(Math.random()*listEst.length)]}&backgroundColor=eef3f9`; img.onload = () => { img.style.display = 'block'; };
+      img.src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${Math.random()}&top=${listEst[Math.floor(Math.random()*listEst.length)]}&backgroundColor=transparent`; 
+      img.onload = () => { img.style.opacity = '1'; };
     }
 
     function actualizarVital(id, val, alerta) { const el = document.getElementById(id); el.textContent = val; el.parentElement.classList.toggle('alert', alerta); }
@@ -773,7 +778,6 @@
     function animar(decision, x, y) {
       isAnimating = true; const comboEl = document.getElementById('comboDisplay');
       
-      // MARCAR COMO SELLADO PARA LA ANIMACIÓN FÍSICA
       const stampEl = document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1));
       stampEl.classList.add('is-stamped');
       stampEl.style.opacity = '1';
@@ -821,7 +825,6 @@
       currentX = moveX - startX; currentY = moveY - startY;
       pCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX*0.05}deg)`;
       
-      // Control visual del arrastre, no aplicamos 'is-stamped' hasta soltar.
       document.getElementById('sTriage').style.opacity = currentX < -50 ? 0.8 : 0; 
       document.getElementById('sUrgencias').style.opacity = currentX > 50 ? 0.8 : 0; 
       document.getElementById('sChoque').style.opacity = currentY < -50 ? 0.8 : 0;
