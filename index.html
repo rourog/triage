@@ -47,6 +47,12 @@
       transition: background-color 0.5s ease;
     }
 
+    /* CLASES PARA ÍCONOS VECTORIALES (SVG) */
+    .svg-icon { width: 1.2em; height: 1.2em; vertical-align: text-bottom; stroke-width: 2; flex-shrink: 0; }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .flex-center { display: inline-flex; align-items: center; gap: 6px; }
+
     .danger-vignette {
       position: fixed; inset: 0; pointer-events: none; z-index: 4;
       box-shadow: inset 0 0 0px rgba(239, 68, 68, 0);
@@ -134,7 +140,7 @@
 
     .header-bar .exit-container { justify-self: end; display: flex; align-items: center; gap: 8px; }
     .vol-slider { width: 60px; accent-color: var(--brand); cursor: pointer; }
-    .btn-icon-mute { background: transparent; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.2rem; transition: transform 0.1s; outline: none; }
+    .btn-icon-mute { background: transparent; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.2rem; transition: transform 0.1s; outline: none; display: flex; align-items: center; justify-content: center;}
     .btn-icon-mute:active { transform: scale(0.8); }
     .btn-exit-game { background: #fef2f2; border: 1px solid #fca5a5; color: var(--danger); font-family: 'Oswald', sans-serif; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.9rem; margin-left: 5px; }
     .btn-exit-game:active { background: var(--danger); color: white; transform: scale(0.95); }
@@ -288,8 +294,9 @@
     .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--bg); }
     .lb-header h3 { margin: 0; color: var(--text); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
     
-    .btn-lb-toggle { font-family: 'Oswald', sans-serif; background: #f1f5f9; border: 2px solid var(--line); color: var(--brand); font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 1rem; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 3px 0 var(--line); text-transform: uppercase;}
+    .btn-lb-toggle { background: #f1f5f9; border: 2px solid var(--line); color: var(--brand); padding: 0.4rem; border-radius: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 0 var(--line); display: flex; align-items: center; justify-content: center;}
     .btn-lb-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
+    .btn-lb-toggle svg { width: 1.4rem; height: 1.4rem; }
 
     .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; margin-bottom: 0.4rem; border-radius: 0.5rem; transition: all 0.2s; position: relative; overflow: hidden;}
     .lb-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; text-align: left; font-size: 1.2rem; text-transform: uppercase; z-index: 2;}
@@ -333,7 +340,7 @@
     .input-name { font-family: 'Oswald', sans-serif; text-transform: uppercase; -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; padding: 0.8rem; border: 2px solid var(--brand); border-radius: 0.6rem; font-size: 1.3rem; text-align: center; font-weight: bold; outline: none; background: #ffffff; color: var(--text); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); width: 200px; margin: 0; }
     .input-name:focus { box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.2); }
     
-    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 0 #0f766e; }
+    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 0 #0f766e; }
     .btn-icon-save:active { transform: translateY(4px); box-shadow: 0 0 0 #0f766e; }
     .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 4px 0 #047857; }
 
@@ -431,7 +438,6 @@
           fecha: fecha,
           timestamp: timestamp
         });
-        console.log("¡Puntaje guardado en la nube!");
       } catch (e) {
         console.error("Error guardando en Firebase: ", e);
       }
@@ -471,8 +477,14 @@
       <div class="score-box">
         <div class="score-top">Pts: <span id="scoreVal">0</span><span id="comboDisplay" class="combo-display">x1.5</span></div>
         <div class="strikes-container">
-          <span id="satDisplay" class="strike-item" title="Camas Ocupadas Innecesariamente">🛏️ 0/3</span>
-          <span id="deathDisplay" class="strike-item" title="Negligencias Graves">💀 0/5</span>
+          <span class="strike-item flex-center" title="Camas Ocupadas Innecesariamente">
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+            <span id="satCount">0/3</span>
+          </span>
+          <span class="strike-item flex-center" title="Negligencias Graves">
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12.4 18-.4-1.2a1.8 1.8 0 0 0-3.4 0l-.4 1.2"/><path d="M18.8 16.5a8 8 0 1 0-13.6 0"/><path d="M8.2 20h7.6"/><path d="M9.8 20v2"/><path d="M14.2 20v2"/><circle cx="8.5" cy="11.5" r="1.5"/><circle cx="15.5" cy="11.5" r="1.5"/></svg>
+            <span id="deathCount">0/5</span>
+          </span>
         </div>
       </div>
       
@@ -480,7 +492,9 @@
       
       <div class="exit-container">
         <input type="range" id="volSlider" class="vol-slider" min="0" max="0.5" step="0.01" value="0.5" title="Volumen" oninput="ajustarVolumen()">
-        <button id="btnMute" class="btn-icon-mute" onclick="toggleMute()" title="Silenciar">🔊</button>
+        <button id="btnMute" class="btn-icon-mute flex-center" onclick="toggleMute()" title="Silenciar">
+           <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
         <button class="btn-exit-game" onclick="confirmarSalida()">Salir</button>
       </div>
     </header>
@@ -543,7 +557,9 @@
       <div class="leaderboard-box" id="mainLeaderboard">
         <div class="lb-header">
           <h3 id="lbTitle">TOP DIARIO</h3>
-          <button id="btnToggleLb" class="btn-lb-toggle" onclick="toggleLeaderboard()">🌍 GLOBAL 🔄</button>
+          <button id="btnToggleLb" class="btn-lb-toggle flex-center" onclick="toggleLeaderboard()" title="Cambiar Tablero">
+            <svg class="svg-icon" style="width:1.5rem; height:1.5rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16V4"/><path d="M7 4L3 8"/><path d="M7 4l4 4"/><path d="M17 8v12"/><path d="M17 20l-4-4"/><path d="M17 20l4-4"/></svg>
+          </button>
         </div>
         <div id="lbListStart">Cargando tablero...</div>
       </div>
@@ -552,7 +568,9 @@
     <div class="start-bottom">
       <div class="action-row">
         <button onclick="iniciarJuego()" class="btn-primary" style="margin:0;">INICIAR GUARDIA</button>
-        <button onclick="mostrarInstrucciones()" class="btn-info" title="Instrucciones">?</button>
+        <button onclick="mostrarInstrucciones()" class="btn-info flex-center" title="Instrucciones">
+          <svg class="svg-icon" style="width:1.8rem; height:1.8rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -564,7 +582,7 @@
         <p>Tu misión es simple: lee el motivo de consulta, analiza los signos vitales y <b>dirige al paciente al área correcta</b> antes de que se acabe el turno.</p>
         
         <div class="inst-warn" style="margin-bottom: 1rem;">
-          ⚠️ <b>Cuidado:</b> Mandar un infarto a la sala de espera te costará una demanda (y una vida). Meter un uñero a la Sala de Choque colapsará el hospital. No hagas llorar al Subdirector.
+          ⚠️ <b>Cuidado:</b> Mandar un infarto a la sala de espera te costará una demanda (y una vida). Meter una uña encarnada a Urgencias puede colapsar el Hospital. No hagas llorar al Subdirector.
         </div>
         
         <p style="font-family: 'Oswald', sans-serif; font-size: 1.3rem; margin-bottom: 0; color: var(--text);">CONTROLES:</p>
@@ -618,7 +636,9 @@
         </div>
         <input type="text" id="playerNameInput" class="input-name" placeholder="Tu Nombre..." maxlength="15">
         <div class="input-btn-right">
-          <button id="btnPlaceboSave" class="btn-icon-save" onclick="accionGuardarPlacebo()" title="Guardar">💾</button>
+          <button id="btnPlaceboSave" class="btn-icon-save flex-center" onclick="accionGuardarPlacebo()" title="Guardar">
+             <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </button>
         </div>
       </div>
       
@@ -631,10 +651,19 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.10</span>
+    by ROUROG Innovations <span class="version-tag">v1.2.0</span>
   </div>
 
   <script>
+    // ICONOS VECTORIALES REUTILIZABLES
+    const svgVolOn = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+    const svgVolOff = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+    const svgDisk = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
+    const svgSpin = `<svg class="svg-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
+    const svgCheck = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const svgCrown = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: #b45309;"><polygon points="2 20 22 20 19 4 15 12 12 4 9 12 5 4 2 20"/></svg>`;
+    const svgStar = `<svg class="svg-icon" viewBox="0 0 24 24" fill="#ca8a04" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+
     window.getHoyString = function() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -660,13 +689,13 @@
     function ajustarVolumen() {
       let vol = parseFloat(document.getElementById('volSlider').value);
       localStorage.setItem('triageVolume', vol); 
-      if (vol > 0 && isMuted) { isMuted = false; document.getElementById('btnMute').textContent = '🔊'; }
-      if (vol === 0 && !isMuted) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; }
+      if (vol > 0 && isMuted) { isMuted = false; document.getElementById('btnMute').innerHTML = svgVolOn; }
+      if (vol === 0 && !isMuted) { isMuted = true; document.getElementById('btnMute').innerHTML = svgVolOff; }
     }
 
     function toggleMute() {
       isMuted = !isMuted;
-      document.getElementById('btnMute').textContent = isMuted ? '🔇' : '🔊';
+      document.getElementById('btnMute').innerHTML = isMuted ? svgVolOff : svgVolOn;
       if(isMuted) { document.getElementById('volSlider').value = 0; } 
       else { let savedVol = parseFloat(localStorage.getItem('triageVolume')) || 0.5; if (savedVol === 0) savedVol = 0.5; document.getElementById('volSlider').value = savedVol; }
     }
@@ -771,8 +800,6 @@
 
     let score = 0, timeLeft = 90, pacienteActual = null, isPlaying = false, isAnimating = false;
     let timerInterval = null, recordGuardado = false, comboStreak = 0, multiplier = 1, satStrikes = 0, deathStrikes = 0;
-    
-    // START VIEW ON DAILY
     let currentLbView = 'daily';
 
     let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
@@ -803,7 +830,7 @@
       detenerBrilloVip();
 
       let p = {};
-      let vipProb = 0.05 + ((multiplier - 1) * 0.05); 
+      let vipProb = 0.40 + ((multiplier - 1) * 0.10); 
       
       if (Math.random() < vipProb) {
           p.isVip = true;
@@ -827,7 +854,7 @@
               baseMotivo = poolUrgencias.pop();
           }
 
-          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
+          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase; display: flex; align-items:center; gap:5px; justify-content:center;">${svgStar} Recomendado de<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
           
           p.edad = Math.floor(Math.random() * 60 + 18);
           p.sexo = Math.random() > 0.5 ? "M" : "F";
@@ -901,12 +928,12 @@
         
         if (pacienteActual.destino === 'triage') { 
             satStrikes += strikePenalty; 
-            document.getElementById('satDisplay').textContent = `🛏️ ${satStrikes}/3`; 
+            document.getElementById('satCount').textContent = `${satStrikes}/3`; 
             document.getElementById('satDisplay').classList.add('danger-sat'); 
             setTimeout(() => document.getElementById('satDisplay').classList.remove('danger-sat'), 500); 
         } else { 
             deathStrikes += strikePenalty; 
-            document.getElementById('deathDisplay').textContent = `💀 ${deathStrikes}/5`; 
+            document.getElementById('deathCount').textContent = `${deathStrikes}/5`; 
             document.getElementById('deathDisplay').classList.add('danger-death'); 
         }
       }
@@ -963,17 +990,8 @@
 
     function toggleLeaderboard() {
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
-      const btn = document.getElementById('btnToggleLb');
       const title = document.getElementById('lbTitle');
-      
-      // NUEVA LÓGICA DE BOTÓN INTUITIVO
-      if (currentLbView === 'global') {
-          btn.innerHTML = '🌍 GLOBAL 🔄';
-          title.textContent = 'TOP GLOBAL';
-      } else {
-          btn.innerHTML = '📅 HOY 🔄';
-          title.textContent = 'TOP DIARIO';
-      }
+      title.textContent = currentLbView === 'global' ? 'TOP GLOBAL' : 'TOP DIARIO';
       window.actualizarTableroVisual('lbListStart', 8);
     }
 
@@ -1001,7 +1019,7 @@
 
       const listHtml = leaderboard.slice(0, limite).map((entry, idx) => {
         let claseCSS = "lb-normal"; let prefijo = `#${idx + 1}`; 
-        if (idx === 0) { claseCSS = "lb-gold"; prefijo = "👑 #1"; } 
+        if (idx === 0) { claseCSS = "lb-gold"; prefijo = svgCrown + " #1"; } 
         else if (idx === 1) { claseCSS = "lb-silver"; } 
         else if (idx === 2) { claseCSS = "lb-bronze"; }
         return `<div class="lb-row ${claseCSS}"><span class="lb-name">${prefijo} ${entry.name}</span><span class="lb-score">${entry.score} pts</span></div>`;
@@ -1093,7 +1111,7 @@
       rDisplay.className = "rank-display"; 
 
       document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
-      const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = '💾';
+      const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = svgDisk;
       pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); });
     }
 
@@ -1107,7 +1125,7 @@
       const puntos = Math.floor(score);
 
       const btn = document.getElementById('btnPlaceboSave');
-      btn.innerHTML = '⏳'; 
+      btn.innerHTML = svgSpin; 
 
       if (window.guardarEnFirebase) {
          await window.guardarEnFirebase(nombre, puntos, fecha, timestamp);
@@ -1119,8 +1137,8 @@
       localStorage.setItem('triageLeaderboard', JSON.stringify(leaderboardLocal));
       
       btn.classList.add('saved'); 
-      btn.innerHTML = '✔'; 
-      setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '💾'; }, 1500);
+      btn.innerHTML = svgCheck; 
+      setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = svgDisk; }, 1500);
 
       recordGuardado = true; 
     }
@@ -1156,7 +1174,7 @@
       
       statsGuardia = { aciertos: { triage: 0, urgencias: 0, choque: 0 }, errores: { triage: 0, urgencias: 0, choque: 0 } };
 
-      document.getElementById('satDisplay').textContent = "🛏️ 0/3"; document.getElementById('deathDisplay').textContent = "💀 0/5";
+      document.getElementById('satCount').textContent = "0/3"; document.getElementById('deathCount').textContent = "0/5";
       document.getElementById('satDisplay').classList.remove('danger-sat'); document.getElementById('deathDisplay').classList.remove('danger-death');
       rellenarMazos(); document.getElementById('scoreVal').textContent = "0"; document.getElementById('comboDisplay').className = 'combo-display';
       document.getElementById('timerVal').classList.remove('danger'); 
@@ -1185,11 +1203,13 @@
     }
 
     window.onload = () => {
+      document.getElementById('btnMute').innerHTML = svgVolOn;
+      document.getElementById('btnPlaceboSave').innerHTML = svgDisk;
       document.getElementById('gameUI').classList.remove('active');
       
       setTimeout(() => { window.actualizarTableroVisual('lbListStart', 8); }, 500);
       let savedVol = localStorage.getItem('triageVolume');
-      if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').textContent = '🔇'; } } 
+      if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').innerHTML = svgVolOff; } } 
       else { document.getElementById('volSlider').value = 0.5; }
     };
   </script>
