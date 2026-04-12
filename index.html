@@ -181,7 +181,7 @@
     .end-title { font-size: 3rem; margin: 0 0 0.5rem 0; background: white; padding: 8px 25px; border-radius: 20px; text-transform: uppercase; font-weight: 900; text-align: center; line-height: 1.1; position: relative; z-index: 2;}
     .end-subtitle { font-size: 1.2rem; color: var(--text); background: rgba(255, 255, 255, 0.95); padding: 0.5rem 1.2rem; border-radius: 1rem; font-weight: 600; margin-top: -0.3rem; margin-bottom: 1.5rem; font-style: italic; max-width: 400px; text-align: center; font-family: system-ui, sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; z-index: 1;}
 
-    .btn-primary { flex: 1; font-family: 'Oswald', sans-serif; padding: 1.2rem; background: var(--brand); color: white; border: none; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; box-shadow: 0 6px 0 #0f766e, 0 15px 20px rgba(14, 165, 166, 0.3); transition: transform 0.1s, box-shadow 0.1s; width: 100%; max-width: 380px; text-transform: uppercase;}
+    .btn-primary { flex: 1; font-family: 'Oswald', sans-serif; padding: 1.2rem; background: var(--brand); color: white; border: none; border-radius: 2rem; cursor: pointer; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; box-shadow: 0 6px 0 #0f766e, 0 15px 20px rgba(14, 165, 166, 0.3); transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase;}
     .btn-primary:active { transform: translateY(6px); box-shadow: 0 0 0 #0f766e, 0 5px 10px rgba(14, 165, 166, 0.3); }
     
     .btn-secondary { font-family: 'Oswald', sans-serif; padding: 1rem 2.5rem; background: #ffffff; color: var(--muted); border: 2px solid var(--line); border-radius: 2.5rem; cursor: pointer; font-weight: 600; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 6px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s; width: 100%; max-width: 380px; margin-top: 15px; text-transform: uppercase;}
@@ -255,7 +255,6 @@
       .vol-slider { width: 45px; }
       main { flex: 1 1 auto; padding: 3dvh 1.5rem; justify-content: flex-start; height: auto; }
       
-      /* --- REDUCCIÓN DE TARJETA PARA EVITAR COLISIÓN --- */
       .patient-card { display: grid; grid-template-columns: 75px 1fr; grid-template-rows: auto auto auto 1fr; gap: 0.5rem 0.8rem; height: 100%; max-height: 100%; padding: 1rem; }
       .card-left, .card-right { display: contents; }
       .card-left img { grid-column: 1; grid-row: 1; width: 70px; height: 70px; min-height: 70px; margin: 0; border-width: 2px; }
@@ -266,23 +265,29 @@
       .vital-lbl { font-size: 0.75rem; }
       .vital-val { font-size: 1.2rem; }
       
-      /* Reducción clave en el motivo de consulta */
       .p-reason { grid-column: 1 / 3; grid-row: 4; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; margin: 0; padding: 0.5rem; text-align: center; font-family: system-ui, sans-serif;}
       .stamp { font-size: 2.2rem; }
       
-      /* Botonera de juego empujada por Safe Area y Global Footer */
-      .controls { flex: 0 0 auto; padding: 0 1rem calc(45px + env(safe-area-inset-bottom, 10px)); gap: 10px; }
+      /* --- FIX BOTONES ALINEADOS MISMA ALTURA Y MARGEN AL FOOTER --- */
+      .controls { 
+        flex: 0 0 auto; 
+        /* Padding generoso para evitar la barra inferior y el footer fijo */
+        padding: 0 1rem calc(50px + env(safe-area-inset-bottom, 15px)); 
+        gap: 10px; 
+      }
       .btn-triage { padding: 0.6rem 0.2rem; border-radius: 12px; font-size: 0.95rem; }
       .btn-arrow { font-size: 1.4rem; margin-bottom: 0px; }
       .btn-lbl { display: none; } 
-      .btn-cen { transform: translateY(-10px); box-shadow: 0 5px 0 var(--s-choque); }
-      .btn-cen:active { transform: translateY(-5px); box-shadow: 0 0 0 var(--s-choque); }
+      
+      /* Quitamos la subida en Y del botón de choque en móvil para hacerlos todos planos */
+      .btn-cen { transform: none; box-shadow: 0 5px 0 var(--s-choque); }
+      .btn-cen:active { transform: translateY(5px); box-shadow: 0 0 0 var(--s-choque); }
+      
       .btn-izq { box-shadow: 0 5px 0 var(--s-triage); }
       .btn-izq:active { transform: translateY(5px); box-shadow: 0 0 0 var(--s-triage); }
       .btn-der { box-shadow: 0 5px 0 var(--s-urgencias); }
       .btn-der:active { transform: translateY(5px); box-shadow: 0 0 0 var(--s-urgencias); }
 
-      /* Pantalla Start protegida del Global Footer */
       #startScreen { padding: 4dvh 1rem calc(35px + env(safe-area-inset-bottom, 10px)) 1rem; }
       .title-main { font-size: 4rem; }
       .btn-primary { font-size: 1.2rem; padding: 0.8rem;}
@@ -493,7 +498,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.0.0.1</span>
+    by ROUROG Innovations <span class="version-tag">v1.0.0.2</span>
   </div>
 
   <script>
@@ -702,7 +707,6 @@
 
     function flash(c) { const f = document.getElementById('flashOverlay'); f.className = 'screen-flash ' + c; f.style.opacity = '1'; setTimeout(() => f.style.opacity = '0', 150); }
 
-    // --- DRAG TÁCTIL BLINDADO ---
     const pCard = document.getElementById('patientCard');
     let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
 
