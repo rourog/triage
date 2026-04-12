@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0..1,0" rel="stylesheet" />
 
   <style>
     :root {
@@ -47,10 +48,19 @@
       transition: background-color 0.5s ease;
     }
 
-    /* CLASES PARA ÍCONOS VECTORIALES (SVG) */
-    .svg-icon { width: 1.2em; height: 1.2em; vertical-align: text-bottom; stroke-width: 2; flex-shrink: 0; }
-    .spin { animation: spin 1s linear infinite; }
+    /* CONFIGURACIÓN GLOBAL PARA GOOGLE MATERIAL SYMBOLS */
+    .material-symbols-rounded {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      font-size: inherit;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .icon-fill { font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24; }
+    .spin-icon { animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    
     .flex-center { display: inline-flex; align-items: center; gap: 6px; }
 
     .danger-vignette {
@@ -58,36 +68,24 @@
       box-shadow: inset 0 0 0px rgba(239, 68, 68, 0);
       transition: box-shadow 0.5s ease;
     }
-    .danger-vignette.active {
-      animation: breatheTunnel 0.8s infinite alternate ease-in-out;
-    }
+    .danger-vignette.active { animation: breatheTunnel 0.8s infinite alternate ease-in-out; }
     @keyframes breatheTunnel {
       0% { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.1); }
       100% { box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.5); }
     }
 
-    .edges-breathing .edge-indicator, .edges-breathing .edge-top-bar {
-      animation: breatheEdges 0.8s infinite alternate ease-in-out;
-    }
+    .edges-breathing .edge-indicator, .edges-breathing .edge-top-bar { animation: breatheEdges 0.8s infinite alternate ease-in-out; }
     @keyframes breatheEdges {
       0% { transform: scale(1); opacity: 0.5; filter: brightness(1); }
       100% { transform: scale(1.5) translateZ(0); opacity: 1; filter: brightness(1.3); }
     }
 
     .global-footer-fixed {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--panel);
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-family: 'Share Tech Mono', monospace;
-      font-weight: bold;
-      font-size: 0.75rem;
-      text-transform: uppercase;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--panel); border-top: 1px solid var(--line);
+      color: var(--muted); font-family: 'Share Tech Mono', monospace; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
       display: flex; justify-content: center; align-items: center; gap: 8px;
-      height: calc(26px + env(safe-area-inset-bottom, 0px));
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      z-index: 1000;
+      height: calc(26px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 1000;
     }
     .version-tag { font-size: 0.7rem; opacity: 0.6; border-left: 1px solid var(--line); padding-left: 8px; }
 
@@ -96,25 +94,19 @@
     .edge-right { top: 0; bottom: 0; right: 0; width: 12px; background: var(--c-urgencias); }
 
     .header-bar {
-      width: 100%; max-width: none;
-      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      width: 100%; max-width: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
       padding: 1rem 2rem; background: var(--panel); border-bottom: 2px solid var(--line);
       font-size: 1.2rem; font-weight: bold; z-index: 10; letter-spacing: 0.5px;
     }
     
-    .edge-top-bar {
-      width: 100%; height: 12px; background: var(--c-choque); 
-      opacity: 0.6; pointer-events: none; flex-shrink: 0; z-index: 5; transform-origin: top;
-    }
+    .edge-top-bar { width: 100%; height: 12px; background: var(--c-choque); opacity: 0.6; pointer-events: none; flex-shrink: 0; z-index: 5; transform-origin: top; }
 
     .score-box { display: flex; flex-direction: column; align-items: flex-start; }
     .score-top { display: flex; align-items: center; color: var(--muted); text-transform: uppercase;}
     
-    #scoreVal, .timer, .vital-val, .strike-item, .combo-display, .lb-score, .final-score, .stat-val {
-      font-family: 'Share Tech Mono', monospace;
-    }
+    #scoreVal, .timer, .vital-val, .strike-item, .combo-display, .lb-score, .final-score, .stat-val { font-family: 'Share Tech Mono', monospace; }
 
-    .strikes-container { display: flex; gap: 15px; font-size: 1rem; margin-top: 2px; }
+    .strikes-container { display: flex; gap: 15px; font-size: 1.1rem; margin-top: 2px; }
     .strike-item { color: var(--muted); transition: color 0.3s; }
     .strike-item.danger-sat { color: var(--c-urgencias); }
     .strike-item.danger-death { color: var(--danger); animation: pulseDanger 1s infinite alternate; }
@@ -122,8 +114,7 @@
     @keyframes pulseDanger { 0% {transform: scale(1);} 100% {transform: scale(1.2);} }
 
     .combo-display {
-      font-size: 1.4rem; color: #f59e0b; margin-left: 10px;
-      text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      font-size: 1.4rem; color: #f59e0b; margin-left: 10px; text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
       opacity: 0; transform: scale(0.5); transition: opacity 0.3s, transform 0.3s; pointer-events: none;
     }
     .combo-display.active-15 { opacity: 1; animation: pulseCombo15 0.6s infinite alternate ease-in-out; }
@@ -140,7 +131,7 @@
 
     .header-bar .exit-container { justify-self: end; display: flex; align-items: center; gap: 8px; }
     .vol-slider { width: 60px; accent-color: var(--brand); cursor: pointer; }
-    .btn-icon-mute { background: transparent; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.2rem; transition: transform 0.1s; outline: none; display: flex; align-items: center; justify-content: center;}
+    .btn-icon-mute { background: transparent; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; padding: 0.2rem; transition: transform 0.1s; outline: none; display: flex; align-items: center; justify-content: center;}
     .btn-icon-mute:active { transform: scale(0.8); }
     .btn-exit-game { background: #fef2f2; border: 1px solid #fca5a5; color: var(--danger); font-family: 'Oswald', sans-serif; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.9rem; margin-left: 5px; }
     .btn-exit-game:active { background: var(--danger); color: white; transform: scale(0.95); }
@@ -158,8 +149,7 @@
 
     .patient-card.vip {
       background: linear-gradient(135deg, #fef08a 0%, #fde047 50%, #eab308 100%);
-      border-color: #ca8a04;
-      box-shadow: 0 15px 35px -5px rgba(234, 179, 8, 0.4);
+      border-color: #ca8a04; box-shadow: 0 15px 35px -5px rgba(234, 179, 8, 0.4);
     }
     
     .patient-card.vip::before {
@@ -233,7 +223,7 @@
 
     .controls { flex: 0 0 auto; width: 100%; max-width: clamp(600px, 45vw, 900px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 1.5rem 1.5rem; align-items: end; z-index: 10; }
     .btn-triage { font-family: 'Oswald', sans-serif; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.8rem 0.5rem; border: none; border-radius: 16px; color: white; font-weight: 600; cursor: pointer; text-transform: uppercase; font-size: 1.2rem; transition: transform 0.1s ease, box-shadow 0.1s ease; outline: none; letter-spacing: 1px; }
-    .btn-arrow { font-size: 2rem; line-height: 1; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); pointer-events: none; }
+    .btn-arrow { font-size: 2rem; line-height: 1; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); pointer-events: none; display: flex; align-items: center; justify-content: center; }
     .btn-lbl { font-size: 0.9rem; opacity: 0.9; pointer-events: none; letter-spacing: 0; font-weight: 400;}
 
     .btn-izq { grid-column: 1; background: var(--c-triage); box-shadow: 0 8px 0 var(--s-triage), 0 15px 15px rgba(0,0,0,0.2); }
@@ -294,9 +284,8 @@
     .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--bg); }
     .lb-header h3 { margin: 0; color: var(--text); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
     
-    .btn-lb-toggle { background: #f1f5f9; border: 2px solid var(--line); color: var(--brand); padding: 0.4rem; border-radius: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 0 var(--line); display: flex; align-items: center; justify-content: center;}
+    .btn-lb-toggle { background: #f1f5f9; border: 2px solid var(--line); color: var(--brand); padding: 0.4rem 0.8rem; font-family: 'Oswald', sans-serif; font-size: 0.95rem; font-weight: 700; border-radius: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 0 var(--line); display: flex; align-items: center; justify-content: center;}
     .btn-lb-toggle:active { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
-    .btn-lb-toggle svg { width: 1.4rem; height: 1.4rem; }
 
     .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; margin-bottom: 0.4rem; border-radius: 0.5rem; transition: all 0.2s; position: relative; overflow: hidden;}
     .lb-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; text-align: left; font-size: 1.2rem; text-transform: uppercase; z-index: 2;}
@@ -340,7 +329,7 @@
     .input-name { font-family: 'Oswald', sans-serif; text-transform: uppercase; -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; padding: 0.8rem; border: 2px solid var(--brand); border-radius: 0.6rem; font-size: 1.3rem; text-align: center; font-weight: bold; outline: none; background: #ffffff; color: var(--text); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); width: 200px; margin: 0; }
     .input-name:focus { box-shadow: 0 0 0 3px rgba(14, 165, 166, 0.2); }
     
-    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 0 #0f766e; }
+    .btn-icon-save { background: var(--brand); color: white; border: none; border-radius: 0.6rem; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 0 #0f766e; font-size: 1.5rem; }
     .btn-icon-save:active { transform: translateY(4px); box-shadow: 0 0 0 #0f766e; }
     .btn-icon-save.saved { background: var(--c-triage); box-shadow: 0 4px 0 #047857; }
 
@@ -478,11 +467,11 @@
         <div class="score-top">Pts: <span id="scoreVal">0</span><span id="comboDisplay" class="combo-display">x1.5</span></div>
         <div class="strikes-container">
           <span id="satDisplay" class="strike-item flex-center" title="Camas Ocupadas Innecesariamente">
-            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+            <span class="material-symbols-rounded">bed</span>
             <span id="satCount">0/3</span>
           </span>
           <span id="deathDisplay" class="strike-item flex-center" title="Negligencias Graves">
-            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12.4 18-.4-1.2a1.8 1.8 0 0 0-3.4 0l-.4 1.2"/><path d="M18.8 16.5a8 8 0 1 0-13.6 0"/><path d="M8.2 20h7.6"/><path d="M9.8 20v2"/><path d="M14.2 20v2"/><circle cx="8.5" cy="11.5" r="1.5"/><circle cx="15.5" cy="11.5" r="1.5"/></svg>
+            <span class="material-symbols-rounded">skull</span>
             <span id="deathCount">0/5</span>
           </span>
         </div>
@@ -492,7 +481,9 @@
       
       <div class="exit-container">
         <input type="range" id="volSlider" class="vol-slider" min="0" max="0.5" step="0.01" value="0.5" title="Volumen" oninput="ajustarVolumen()">
-        <button id="btnMute" class="btn-icon-mute flex-center" onclick="toggleMute()" title="Silenciar"></button>
+        <button id="btnMute" class="btn-icon-mute flex-center" onclick="toggleMute()" title="Silenciar">
+           <span class="material-symbols-rounded">volume_up</span>
+        </button>
         <button class="btn-exit-game" onclick="confirmarSalida()">Salir</button>
       </div>
     </header>
@@ -533,15 +524,15 @@
 
     <div class="controls">
       <button class="btn-triage btn-izq" onclick="teclaDecidir('triage')">
-        <span class="btn-arrow">◀</span>
+        <span class="btn-arrow flex-center"><span class="material-symbols-rounded">keyboard_arrow_left</span></span>
         <span>Triage <span class="btn-lbl">(A)</span></span>
       </button>
       <button class="btn-triage btn-cen" onclick="teclaDecidir('choque')">
-        <span class="btn-arrow">▲</span>
+        <span class="btn-arrow flex-center"><span class="material-symbols-rounded">keyboard_double_arrow_up</span></span>
         <span>Choque <span class="btn-lbl">(W)</span></span>
       </button>
       <button class="btn-triage btn-der" onclick="teclaDecidir('urgencias')">
-        <span class="btn-arrow">▶</span>
+        <span class="btn-arrow flex-center"><span class="material-symbols-rounded">keyboard_arrow_right</span></span>
         <span>Urgencias <span class="btn-lbl">(D)</span></span>
       </button>
     </div>
@@ -556,7 +547,7 @@
         <div class="lb-header">
           <h3 id="lbTitle">TOP DIARIO</h3>
           <button id="btnToggleLb" class="btn-lb-toggle flex-center" onclick="toggleLeaderboard()" title="Cambiar Tablero">
-            <svg class="svg-icon" style="width:1.5rem; height:1.5rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16V4"/><path d="M7 4L3 8"/><path d="M7 4l4 4"/><path d="M17 8v12"/><path d="M17 20l-4-4"/><path d="M17 20l4-4"/></svg>
+            <span class="material-symbols-rounded">public</span> GLOBAL <span class="material-symbols-rounded" style="margin-left: 2px;">sync_alt</span>
           </button>
         </div>
         <div id="lbListStart">Cargando tablero...</div>
@@ -567,7 +558,7 @@
       <div class="action-row">
         <button onclick="iniciarJuego()" class="btn-primary" style="margin:0;">INICIAR GUARDIA</button>
         <button onclick="mostrarInstrucciones()" class="btn-info flex-center" title="Instrucciones">
-          <svg class="svg-icon" style="width:1.8rem; height:1.8rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          <span class="material-symbols-rounded" style="font-size: 1.5em;">help</span>
         </button>
       </div>
     </div>
@@ -634,7 +625,9 @@
         </div>
         <input type="text" id="playerNameInput" class="input-name" placeholder="Tu Nombre..." maxlength="15">
         <div class="input-btn-right">
-          <button id="btnPlaceboSave" class="btn-icon-save flex-center" onclick="accionGuardarPlacebo()" title="Guardar"></button>
+          <button id="btnPlaceboSave" class="btn-icon-save flex-center" onclick="accionGuardarPlacebo()" title="Guardar">
+             <span class="material-symbols-rounded">save</span>
+          </button>
         </div>
       </div>
       
@@ -647,19 +640,10 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.2.1</span>
+    by ROUROG Innovations <span class="version-tag">v1.2.2</span>
   </div>
 
   <script>
-    // ICONOS VECTORIALES REUTILIZABLES
-    const svgVolOn = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
-    const svgVolOff = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
-    const svgDisk = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
-    const svgSpin = `<svg class="svg-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
-    const svgCheck = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>`;
-    const svgCrown = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: #b45309;"><polygon points="2 20 22 20 19 4 15 12 12 4 9 12 5 4 2 20"/></svg>`;
-    const svgStar = `<svg class="svg-icon" viewBox="0 0 24 24" fill="#ca8a04" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
-
     window.getHoyString = function() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -685,13 +669,13 @@
     function ajustarVolumen() {
       let vol = parseFloat(document.getElementById('volSlider').value);
       localStorage.setItem('triageVolume', vol); 
-      if (vol > 0 && isMuted) { isMuted = false; document.getElementById('btnMute').innerHTML = svgVolOn; }
-      if (vol === 0 && !isMuted) { isMuted = true; document.getElementById('btnMute').innerHTML = svgVolOff; }
+      if (vol > 0 && isMuted) { isMuted = false; document.getElementById('btnMute').innerHTML = '<span class="material-symbols-rounded">volume_up</span>'; }
+      if (vol === 0 && !isMuted) { isMuted = true; document.getElementById('btnMute').innerHTML = '<span class="material-symbols-rounded">volume_off</span>'; }
     }
 
     function toggleMute() {
       isMuted = !isMuted;
-      document.getElementById('btnMute').innerHTML = isMuted ? svgVolOff : svgVolOn;
+      document.getElementById('btnMute').innerHTML = isMuted ? '<span class="material-symbols-rounded">volume_off</span>' : '<span class="material-symbols-rounded">volume_up</span>';
       if(isMuted) { document.getElementById('volSlider').value = 0; } 
       else { let savedVol = parseFloat(localStorage.getItem('triageVolume')) || 0.5; if (savedVol === 0) savedVol = 0.5; document.getElementById('volSlider').value = savedVol; }
     }
@@ -850,7 +834,7 @@
               baseMotivo = poolUrgencias.pop();
           }
 
-          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase; display: flex; align-items:center; gap:5px; justify-content:center;">${svgStar} Recomendado de<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
+          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase; display: flex; align-items:center; gap:5px; justify-content:center;"><span class="material-symbols-rounded icon-fill">star</span> Recomendado de<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
           
           p.edad = Math.floor(Math.random() * 60 + 18);
           p.sexo = Math.random() > 0.5 ? "M" : "F";
@@ -986,8 +970,16 @@
 
     function toggleLeaderboard() {
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
+      const btn = document.getElementById('btnToggleLb');
       const title = document.getElementById('lbTitle');
-      title.textContent = currentLbView === 'global' ? 'TOP GLOBAL' : 'TOP DIARIO';
+      
+      if (currentLbView === 'global') {
+          btn.innerHTML = '<span class="material-symbols-rounded">public</span> GLOBAL <span class="material-symbols-rounded" style="margin-left: 2px;">sync_alt</span>';
+          title.textContent = 'TOP GLOBAL';
+      } else {
+          btn.innerHTML = '<span class="material-symbols-rounded">today</span> HOY <span class="material-symbols-rounded" style="margin-left: 2px;">sync_alt</span>';
+          title.textContent = 'TOP DIARIO';
+      }
       window.actualizarTableroVisual('lbListStart', 8);
     }
 
@@ -1015,7 +1007,7 @@
 
       const listHtml = leaderboard.slice(0, limite).map((entry, idx) => {
         let claseCSS = "lb-normal"; let prefijo = `#${idx + 1}`; 
-        if (idx === 0) { claseCSS = "lb-gold"; prefijo = svgCrown + " #1"; } 
+        if (idx === 0) { claseCSS = "lb-gold"; prefijo = `<span class="material-symbols-rounded icon-fill" style="color: #b45309; font-size: 1.2em; vertical-align: bottom;">workspace_premium</span> #1`; } 
         else if (idx === 1) { claseCSS = "lb-silver"; } 
         else if (idx === 2) { claseCSS = "lb-bronze"; }
         return `<div class="lb-row ${claseCSS}"><span class="lb-name">${prefijo} ${entry.name}</span><span class="lb-score">${entry.score} pts</span></div>`;
@@ -1107,7 +1099,8 @@
       rDisplay.className = "rank-display"; 
 
       document.getElementById('playerNameInput').value = localStorage.getItem('triageLastName') || '';
-      const btnPlacebo = document.getElementById('btnPlaceboSave'); btnPlacebo.classList.remove('saved'); btnPlacebo.innerHTML = svgDisk;
+      document.getElementById('btnPlaceboSave').innerHTML = '<span class="material-symbols-rounded">save</span>';
+      document.getElementById('btnPlaceboSave').classList.remove('saved');
       pCard.style.transition = 'none'; pCard.style.transform = ''; pCard.style.opacity = '1'; document.querySelectorAll('.stamp').forEach(s => { s.style.opacity = '0'; s.classList.remove('is-stamped'); });
     }
 
@@ -1121,7 +1114,7 @@
       const puntos = Math.floor(score);
 
       const btn = document.getElementById('btnPlaceboSave');
-      btn.innerHTML = svgSpin; 
+      btn.innerHTML = '<span class="material-symbols-rounded spin-icon">progress_activity</span>'; 
 
       if (window.guardarEnFirebase) {
          await window.guardarEnFirebase(nombre, puntos, fecha, timestamp);
@@ -1133,8 +1126,8 @@
       localStorage.setItem('triageLeaderboard', JSON.stringify(leaderboardLocal));
       
       btn.classList.add('saved'); 
-      btn.innerHTML = svgCheck; 
-      setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = svgDisk; }, 1500);
+      btn.innerHTML = '<span class="material-symbols-rounded">check</span>'; 
+      setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '<span class="material-symbols-rounded">save</span>'; }, 1500);
 
       recordGuardado = true; 
     }
@@ -1199,13 +1192,22 @@
     }
 
     window.onload = () => {
-      document.getElementById('btnMute').innerHTML = svgVolOn;
-      document.getElementById('btnPlaceboSave').innerHTML = svgDisk;
+      document.getElementById('btnMute').innerHTML = '<span class="material-symbols-rounded">volume_up</span>';
+      document.getElementById('btnPlaceboSave').innerHTML = '<span class="material-symbols-rounded">save</span>';
       document.getElementById('gameUI').classList.remove('active');
+      
+      // Iniciar asegurando que el botón muestra el texto correcto
+      const btn = document.getElementById('btnToggleLb');
+      const title = document.getElementById('lbTitle');
+      btn.innerHTML = '<span class="material-symbols-rounded">public</span> GLOBAL <span class="material-symbols-rounded" style="margin-left: 2px;">sync_alt</span>';
+      title.textContent = 'TOP DIARIO';
+      if(currentLbView === 'daily') {
+          btn.innerHTML = '<span class="material-symbols-rounded">public</span> GLOBAL <span class="material-symbols-rounded" style="margin-left: 2px;">sync_alt</span>';
+      }
       
       setTimeout(() => { window.actualizarTableroVisual('lbListStart', 8); }, 500);
       let savedVol = localStorage.getItem('triageVolume');
-      if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').innerHTML = svgVolOff; } } 
+      if (savedVol !== null) { document.getElementById('volSlider').value = savedVol; if (savedVol == 0) { isMuted = true; document.getElementById('btnMute').innerHTML = '<span class="material-symbols-rounded">volume_off</span>'; } } 
       else { document.getElementById('volSlider').value = 0.5; }
     };
   </script>
