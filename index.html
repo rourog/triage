@@ -150,7 +150,6 @@
       transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
     }
 
-    /* --- ESTILOS DE PACIENTE VIP --- */
     .patient-card.vip {
       background: linear-gradient(135deg, #fef08a 0%, #fde047 50%, #eab308 100%);
       border-color: #ca8a04;
@@ -165,13 +164,12 @@
 
     @keyframes vipShine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-    /* Aseguramos que el contenido quede sobre el brillo */
     .patient-card > * { position: relative; z-index: 2; }
     
     .patient-card.vip .card-left { background: rgba(255, 255, 255, 0.4); border-right-color: #ca8a04; }
     .patient-card.vip .vitals-monitor { background: rgba(255, 255, 255, 0.6); border-color: #ca8a04; }
     .patient-card.vip .vital-box { border-color: #eab308; }
-    .patient-card.vip .p-reason { background: #fff; border-left-color: #ca8a04; font-weight: bold; color: #854d0e;}
+    .patient-card.vip .p-reason { background: #fff; border-left-color: #ca8a04; color: #854d0e;}
     .patient-card.vip .p-name { color: #854d0e; }
 
     .stamp { 
@@ -633,7 +631,7 @@
   </div>
 
   <div class="global-footer-fixed">
-    by ROUROG Innovations <span class="version-tag">v1.1.5</span>
+    by ROUROG Innovations <span class="version-tag">v1.1.6</span>
   </div>
 
   <script>
@@ -651,6 +649,7 @@
     let monitorRate = 1000; 
     let isErrorState = false;
     let errorTimeout = null;
+    let vipAudioInterval = null;
 
     let statsGuardia = {
       aciertos: { triage: 0, urgencias: 0, choque: 0 },
@@ -680,6 +679,7 @@
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
+      
       if (tipo === 'acierto') {
         osc.frequency.setValueAtTime(523, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
@@ -701,7 +701,38 @@
           gainC.gain.setValueAtTime(vol * 0.8, startTime); gainC.gain.linearRampToValueAtTime(0, startTime + 0.07);
           oscC.start(startTime); oscC.stop(startTime + 0.08);
         }
+      } else if (tipo === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+        osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6
+        gain.gain.setValueAtTime(vol * 2.0, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol * 2.0, audioCtx.currentTime + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
       }
+    }
+
+    // SONIDO MAGIA VIP
+    function iniciarBrilloVip() {
+      if (vipAudioInterval) return;
+      const pentatonic = [1046.50, 1174.66, 1318.51, 1567.98, 1760.00, 2093.00, 2349.32]; // C6 a D7
+      vipAudioInterval = setInterval(() => {
+         let vol = getVol(); if (vol === 0) return;
+         if (audioCtx.state === 'suspended') audioCtx.resume();
+         const osc = audioCtx.createOscillator();
+         const gain = audioCtx.createGain();
+         osc.connect(gain); gain.connect(audioCtx.destination);
+         osc.type = 'sine';
+         osc.frequency.value = pentatonic[Math.floor(Math.random() * pentatonic.length)];
+         gain.gain.setValueAtTime(0, audioCtx.currentTime);
+         gain.gain.linearRampToValueAtTime(vol * 0.05, audioCtx.currentTime + 0.05);
+         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+         osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+      }, 150);
+    }
+    
+    function detenerBrilloVip() {
+      if (vipAudioInterval) { clearInterval(vipAudioInterval); vipAudioInterval = null; }
     }
 
     function latidoMonitor() {
@@ -742,6 +773,8 @@
     let currentLbView = 'global';
 
     let poolTriage = []; let poolUrgencias = []; let poolBanco = [];
+    const recomendadores = ["El Presidente Municipal", "El Director", "El Administrador", "El Sindicato", "El Subdirector", "Un amigo", "Un compañero de trabajo"];
+    
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     
     function rellenarMazos() { 
@@ -762,39 +795,46 @@
       return { fc: Math.floor(Math.random() * (r.fc[1] - r.fc[0] + 1)) + r.fc[0], fr: Math.floor(Math.random() * (r.fr[1] - r.fr[0] + 1)) + r.fr[0], ta: `${Math.floor(Math.random()*(r.sys[1]-r.sys[0])+r.sys[0])}/${Math.floor(Math.random()*(r.dia[1]-r.dia[0])+r.dia[0])}`, temp: (Math.random() * (r.temp[1] - r.temp[0]) + r.temp[0]).toFixed(1), spo2: Math.floor(Math.random() * (r.spo2[1] - r.spo2[0] + 1)) + r.spo2[0], gluc: Math.floor(Math.random() * (r.gluc[1] - r.gluc[0] + 1)) + r.gluc[0] };
     }
 
-    const recomendadores = ["el Subdirector", "el Director", "el Sindicato", "el Alcalde", "Jefatura de Enseñanza", "el Gobernador", "la Secretaria del Director"];
-
     function cargarPaciente() {
       document.getElementById('patientCard').classList.remove('vip');
+      detenerBrilloVip();
 
-      const prob = Math.random(); 
       let p = {};
-
-      // LÓGICA VIP (40% de probabilidad base para testeo + 10% por multiplicador de combo)
-      let vipProb = 0.40 + ((multiplier - 1) * 0.10); 
+      let vipProb = 0.40 + ((multiplier - 1) * 0.10); // Probabilidad base 40% + 10% por combo
       
       if (Math.random() < vipProb) {
+          // LÓGICA VIP
           p.isVip = true;
           let rec = recomendadores[Math.floor(Math.random() * recomendadores.length)];
-          p.motivoConsulta = "⭐ PACIENTE VIP: Recomendado de " + rec;
           
           let sevRoll = Math.random();
           let estadoSignos = '';
+          let baseMotivo = '';
+
           if (sevRoll < 0.33) {
               estadoSignos = 'normal'; p.destino = 'triage';
+              if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico);
+              baseMotivo = poolTriage.pop();
           } else if (sevRoll < 0.66) {
               estadoSignos = 'alterado'; p.destino = 'urgencias';
+              if(poolUrgencias.length === 0) poolUrgencias = shuffleArray(motivosUrgenciasGenerico);
+              baseMotivo = poolUrgencias.pop();
           } else {
               estadoSignos = 'choque'; p.destino = 'choque';
+              if(poolUrgencias.length === 0) poolUrgencias = shuffleArray(motivosUrgenciasGenerico);
+              baseMotivo = poolUrgencias.pop();
           }
+
+          p.motivoConsulta = `<div style="color: #ca8a04; font-weight: bold; margin-bottom: 5px; font-size: 1.15rem; font-family: 'Oswald', sans-serif; text-transform: uppercase;">⭐ Recomendado de:<br>${rec}</div><div style="font-size: 0.95rem; color: #475569; line-height: 1.2;">"${baseMotivo}"</div>`;
           
           p.edad = Math.floor(Math.random() * 60 + 18);
           p.sexo = Math.random() > 0.5 ? "M" : "F";
           p.signos = generarVitales(estadoSignos);
-          
+
       } else {
           // LÓGICA NORMAL
           p.isVip = false;
+          const prob = Math.random();
           if (prob < 0.40) { if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico); const mot = poolTriage.pop(); p = { edad: Math.floor(Math.random()*40+18), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: "triage", signos: generarVitales('normal') }; } 
           else if (prob < 0.50) { if(poolTriage.length === 0) poolTriage = shuffleArray(motivosTriageGenerico); const mot = poolTriage.pop(); const isChoque = Math.random() > 0.5; p = { edad: Math.floor(Math.random()*60+18), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: isChoque ? "choque" : "urgencias", signos: generarVitales(isChoque ? 'choque' : 'alterado') }; } 
           else if (prob < 0.75) { if(poolUrgencias.length === 0) poolUrgencias = shuffleArray(motivosUrgenciasGenerico); const mot = poolUrgencias.pop(); p = { edad: Math.floor(Math.random()*50+15), sexo: Math.random()>0.5?"M":"F", motivoConsulta: mot, destino: "urgencias", signos: generarVitales('alterado') }; } 
@@ -803,7 +843,13 @@
 
       const esH = p.sexo === "M"; p.nombre = (esH ? Nombres.M : Nombres.F)[Math.floor(Math.random()*(esH ? Nombres.M.length : Nombres.F.length))]; p.apellido = Nombres.Ap[Math.floor(Math.random()*Nombres.Ap.length)]; p.alergias = p.alergias || AlergiasMundo[Math.floor(Math.random()*AlergiasMundo.length)]; p.app = p.app || "Ninguno"; pacienteActual = p;
 
-      document.getElementById('pName').textContent = `${p.nombre} ${p.apellido}`; document.getElementById('pAge').textContent = p.edad + " años"; document.getElementById('pSex').textContent = esH ? "Masculino" : "Femenino"; document.getElementById('pAllergies').textContent = p.alergias; document.getElementById('pApp').textContent = p.app; document.getElementById('pReason').textContent = `"${p.motivoConsulta}"`;
+      document.getElementById('pName').textContent = `${p.nombre} ${p.apellido}`; document.getElementById('pAge').textContent = p.edad + " años"; document.getElementById('pSex').textContent = esH ? "Masculino" : "Femenino"; document.getElementById('pAllergies').textContent = p.alergias; document.getElementById('pApp').textContent = p.app; 
+      
+      if (p.isVip) {
+          document.getElementById('pReason').innerHTML = p.motivoConsulta;
+      } else {
+          document.getElementById('pReason').textContent = `"${p.motivoConsulta}"`;
+      }
 
       const sig = p.signos; const [sys, dia] = sig.ta.split('/').map(Number);
       actualizarVital('vFc', sig.fc, sig.fc > 100 || sig.fc < 50); actualizarVital('vFr', sig.fr, false); actualizarVital('vTa', sig.ta, sys > 160 || dia > 100 || sys < 90); actualizarVital('vTemp', sig.temp, sig.temp >= 39.5 || sig.temp <= 35.5); actualizarVital('vSpo2', sig.spo2, sig.spo2 < 90); actualizarVital('vGluc', sig.gluc, sig.gluc > 180 || sig.gluc < 65);
@@ -816,6 +862,7 @@
 
       if (p.isVip) {
           document.getElementById('patientCard').classList.add('vip');
+          iniciarBrilloVip();
       }
     }
 
@@ -825,6 +872,7 @@
 
     function animar(decision, x, y) {
       isAnimating = true; const comboEl = document.getElementById('comboDisplay');
+      detenerBrilloVip(); // Apagar magia al decidir
       
       const stampEl = document.getElementById('s' + decision.charAt(0).toUpperCase() + decision.slice(1));
       stampEl.classList.add('is-stamped');
@@ -835,10 +883,14 @@
         comboStreak++;
         if (comboStreak === 5 && multiplier < 1.5) { multiplier = 1.5; sonar('combo'); comboEl.textContent = 'x1.5'; comboEl.className = 'combo-display active-15'; } 
         else if (comboStreak === 10 && multiplier < 2) { multiplier = 2.0; sonar('combo'); comboEl.textContent = 'x2.0'; comboEl.className = 'combo-display active-20'; }
-        score += (100 * multiplier); document.getElementById('scoreVal').textContent = Math.floor(score); sonar('acierto'); flash('flash-green');
+        
+        score += (100 * multiplier); document.getElementById('scoreVal').textContent = Math.floor(score); 
+        
+        if (pacienteActual.isVip) { sonar('coin'); } else { sonar('acierto'); }
+        flash('flash-green');
+
       } else {
-        // PENALIZACIÓN: Los VIP cuestan doble strike
-        let strikePenalty = pacienteActual.isVip ? 2 : 1; 
+        let strikePenalty = pacienteActual.isVip ? 2 : 1; // VIP castiga doble
 
         statsGuardia.errores[pacienteActual.destino]++;
         comboStreak = 0; multiplier = 1; comboEl.className = 'combo-display'; score -= 200; document.getElementById('scoreVal').textContent = Math.floor(score); sonar('error'); flash('flash-red');
@@ -958,6 +1010,7 @@
     function limpiarEfectosVisuales() {
         document.body.classList.remove('edges-breathing');
         document.getElementById('vignetteOverlay').classList.remove('active');
+        detenerBrilloVip();
     }
 
     async function terminarJuego(motivo = 'tiempo') {
