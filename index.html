@@ -966,8 +966,24 @@
 
     pCard.addEventListener('mousedown', onDragStart); window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', onDragEnd);
     pCard.addEventListener('touchstart', onDragStart, {passive: true}); window.addEventListener('touchmove', onDragMove, {passive: true}); window.addEventListener('touchend', onDragEnd);
-    document.onkeydown = (e) => { if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') teclaDecidir('triage'); if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') teclaDecidir('urgencias'); if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') teclaDecidir('choque'); };
+document.addEventListener('keydown', (e) => {
+  // Ignorar las pulsaciones si el juego no está corriendo o hay una animación
+  if (!isPlaying || isAnimating) return;
 
+  // Prevenir que los atajos se activen si el usuario está escribiendo su nombre o ajustando el volumen
+  if (e.target.tagName.toLowerCase() === 'input') return;
+
+  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+    e.preventDefault(); // Evita el scroll nativo de la ventana
+    teclaDecidir('triage');
+  } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+    e.preventDefault();
+    teclaDecidir('urgencias');
+  } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+    e.preventDefault();
+    teclaDecidir('choque');
+  }
+});
     function toggleLeaderboard() {
       currentLbView = currentLbView === 'global' ? 'daily' : 'global';
       const btn = document.getElementById('btnToggleLb');
