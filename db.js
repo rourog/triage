@@ -193,10 +193,26 @@ const motivosUrgenciasGenerico = [
   "Me tragué una espina de pescado y siento que la traigo atorada aquí en la garganta.",
   "Siento que me caminan insectos por debajo de la piel y traigo mucha taquicardia.",
   "Llevo 3 días vomitando todo lo que como y ya no orino nada."
+  "¿Donde esta el baño?",
+  "Amaneci con muchas lagañas",
+  "Hoy salgo de vaciones, ¿Me puede dar antibioticos por si las dudas?",
+  "Vengo buscando a Humberto Tarango",
+  "El Doctor Avila me mando",
+  "¿Me vas a atender o no?, no tengo tu tiempo",
+  "Quiero una radiografia por que hace mucho me duele la panza",
+  "Fui al Vistas del Sol y me dijeron que me tenian que internar",
+  "Fui al Hospital Fortaleza y me dijeron que me tenian que internar",
+  "Fui a la clinica Delicias y me dijeron que me tenian que internar",    
+  "Fui a la San Felipe y me dijeron que me tenian que internar",
+  "El doctor Najera me mando dijo que era de vida o muerte",
+  "Me mandaron de consulta externa",
+  "Me mando la trabajadora social",
 ];
 
 const bancoPacientes = [
-  // CASOS DE CHOQUE
+  // ==========================================
+  // CASOS DE CHOQUE (Código Rojo / Sala de Reanimación)
+  // ==========================================
   { edad: 65, sexo: "M", motivoConsulta: "Me duele la boca del estómago y estoy sudando frío.", ta: "85/50", fc: 45, destino: "choque" }, 
   { edad: 22, sexo: "F", motivoConsulta: "Me tomé un bote de pastillas porque me dejó mi novio.", destino: "choque" }, 
   { edad: 68, sexo: "F", motivoConsulta: "De repente dejó de hablar y se le fue la boca chueca.", ta: "210/110", destino: "choque" }, 
@@ -259,24 +275,48 @@ const bancoPacientes = [
   { edad: 68, sexo: "M", motivoConsulta: "Mi abuelo diabético no despierta, está frío y sudando mucho.", ta: "80/40", fc: 110, gluc: 40, destino: "choque" }, 
   { edad: 42, sexo: "M", motivoConsulta: "Me di un machetazo en la pierna limpiando la parcela y no para de sangrar.", ta: "75/40", fc: 135, destino: "choque" }, 
   { edad: 55, sexo: "M", motivoConsulta: "Estaba comiendo carne asada y de repente se agarró la garganta y se puso morado.", fc: 140, spo2: 75, destino: "choque" },
-  
-  // TRAMPAS DE TRIAGE (Parecen graves por el texto, pero los signos están bien)
-  { edad: 34, sexo: "M", motivoConsulta: "Traigo la presión en 180/120 pero no me siento mal.", ta: "180/120", fc: 80, destino: "triage" },
+  { edad: 68, sexo: "M", motivoConsulta: "Mi papá de repente dejó de hablar y se le enchuecó la boca, no mueve la mitad del cuerpo.", fc: 115, ta: "210/120", spo2: 88, destino: "choque" },
+  { edad: 54, sexo: "M", motivoConsulta: "Me duele el pecho, siento un peso enorme, sudo frío y me falta el aire.", fc: 125, ta: "90/60", spo2: 85, fr: 28, destino: "choque" },
+  { edad: 23, sexo: "M", motivoConsulta: "Lo atropelló una moto, trae el hueso de la pierna de fuera y está perdiendo mucha sangre.", fc: 140, ta: "80/50", spo2: 90, destino: "choque" },
+  { edad: 45, sexo: "F", motivoConsulta: "Es diabética, la encontramos desmayada, respirando muy rápido.", fc: 135, ta: "100/60", fr: 32, gluc: 550, destino: "choque" },
+  { edad: 30, sexo: "M", motivoConsulta: "Le picó una abeja y se le cerró la garganta.", fc: 130, ta: "85/45", spo2: 78, fr: 35, destino: "choque" },
+  { edad: 72, sexo: "F", motivoConsulta: "Lleva días tosiendo flema verde, hoy amaneció confundida y respirando agitada.", fc: 128, ta: "85/55", temp: 39.5, fr: 30, spo2: 82, destino: "choque" },
+  { edad: 27, sexo: "F", motivoConsulta: "Tiene 8 semanas de embarazo, empezó con dolor abdominal insoportable y se desmayó en el baño.", fc: 145, ta: "70/40", fr: 24, destino: "choque" },
+  { edad: 50, sexo: "M", motivoConsulta: "Estaba vomitando mucha sangre", fc: 132, ta: "75/50", spo2: 89, destino: "choque" },
+
+  // ==========================================
+  // TRAMPAS DE TRIAGE (Prioridad baja / Consulta externa)
+  // ==========================================
+  { edad: 34, sexo: "M", motivoConsulta: "Me salió la presión alta", ta: "170/110", fc: 80, destino: "triage" },
   { edad: 35, sexo: "F", motivoConsulta: "Traigo la presión alta pero me siento normal, solo vine a checarme.", fc: 78, ta: "170/100", destino: "triage" }, 
-  { edad: 24, sexo: "M", motivoConsulta: "Quiero una incapacidad porque traigo gripe desde ayer.", fc: 76, ta: "118/70", destino: "triage" }, 
+  { edad: 24, sexo: "M", motivoConsulta: "Quiero una incapacidad porque traigo gripe desde ayer.", fc: 76, ta: "118/70", temp: 37.1, destino: "triage" }, 
   { edad: 57, sexo: "F", motivoConsulta: "Se me acabó la medicina de la presión y ocupo receta.", fc: 80, ta: "148/86", destino: "triage" }, 
   { edad: 19, sexo: "F", motivoConsulta: "Quiero saber si estoy embarazada.", fc: 82, ta: "112/68", destino: "triage" }, 
   { edad: 42, sexo: "M", motivoConsulta: "Me siento inflamado de la panza, vengo por algo para los gases.", fc: 84, ta: "124/80", destino: "triage" },
+  { edad: 28, sexo: "M", motivoConsulta: "Me picó una araña hace como tres días y me da mucha comezón.", fc: 72, ta: "120/80", destino: "triage" },
+  { edad: 65, sexo: "F", motivoConsulta: "Tengo la cita del especialista hasta el otro mes y quiero que me den mi diclofenaco aquí.", fc: 74, ta: "130/85", destino: "triage" },
+  { edad: 45, sexo: "M", motivoConsulta: "Llevo 3 meses con dolor de espalda, ya no lo aguanto hoy.", fc: 88, ta: "135/85", destino: "triage" },
+  { edad: 22, sexo: "F", motivoConsulta: "Mi niño se cayó de la cama hace 3 dias, lloró mucho, ahorita esta bien pero lo traigo por si las dudas.", fc: 80, ta: "110/70", destino: "triage" },
+  { edad: 31, sexo: "M", motivoConsulta: "Amanecí con el ojo rojo y muchas lagañas, no veo borroso ni me duele.", fc: 75, ta: "115/75", destino: "triage" },
+  { edad: 50, sexo: "F", motivoConsulta: "Me tomé el azúcar en mi casa y me salió en 115, me asusté mucho.", fc: 90, ta: "140/90", gluc: 110, destino: "triage" },
+  { edad: 26, sexo: "M", motivoConsulta: "Traigo una uña enterrada en el dedo gordo del pie que ya me está supurando.", fc: 78, ta: "120/78", temp: 36.8, destino: "triage" },
 
-  // CASOS DE URGENCIAS ESTÁNDAR
+  // ==========================================
+  // CASOS DE URGENCIAS ESTÁNDAR (Amarillo / Requieren cama pero están estables)
+  // ==========================================
   { edad: 43, sexo: "M", motivoConsulta: "Me duele un testículo horrible desde hace rato, ya hasta vomité.", fc: 110, ta: "130/80", destino: "urgencias" }, 
-  { edad: 29, sexo: "F", motivoConsulta: "Me corté la mano con un vaso y creo que necesito puntadas.", fc: 88, ta: "118/72", destino: "urgencias" }, 
+  { edad: 29, sexo: "F", motivoConsulta: "Me corté la mano con un vaso ¿Cree que necesite puntos?.", fc: 88, ta: "118/72", destino: "urgencias" }, 
   { edad: 14, sexo: "M", motivoConsulta: "Me torcí el tobillo jugando y ya no puedo apoyarlo.", fc: 96, ta: "110/70", destino: "urgencias" }, 
   { edad: 52, sexo: "M", motivoConsulta: "Traigo dolor fuerte en un costado y siento ganas de vomitar.", fc: 102, ta: "146/88", destino: "urgencias" }, 
-  { edad: 33, sexo: "F", motivoConsulta: "Tengo fiebre y mucho dolor al orinar, además me duele la espalda.", fc: 108, ta: "124/76", destino: "urgencias" }, 
-  { edad: 67, sexo: "M", motivoConsulta: "Me golpeé las costillas y me duele mucho al respirar, pero sí respiro bien.", fc: 90, ta: "136/82", destino: "urgencias" }, 
-  { edad: 21, sexo: "M", motivoConsulta: "Me cayó aceite en el brazo y me salieron ampollas.", fc: 94, ta: "122/78", destino: "urgencias" }, 
-  { edad: 38, sexo: "F", motivoConsulta: "Tengo dolor abdominal fuerte desde anoche y he vomitado varias veces.", fc: 104, ta: "128/80", destino: "urgencias" }, 
-  { edad: 47, sexo: "M", motivoConsulta: "Me pegué en la ceja y no deja de abrirse la herida.", fc: 86, ta: "130/84", destino: "urgencias" }, 
-  { edad: 61, sexo: "F", motivoConsulta: "Traigo una bolita muy dolorosa en la nalga y cada vez está peor.", fc: 92, ta: "126/74", destino: "urgencias" }
+  { edad: 33, sexo: "F", motivoConsulta: "Tengo fiebre y mucho dolor al orinar.", fc: 108, ta: "124/76", temp: 38.9, destino: "urgencias" }, 
+  { edad: 67, sexo: "M", motivoConsulta: "Me golpeé las costillas y me duele mucho al respirar.", fc: 90, ta: "136/82", spo2: 94, destino: "urgencias" }, 
+  { edad: 21, sexo: "M", motivoConsulta: "Me cayó aceite en el brazo y me salieron unas ampollas muy grandes.", fc: 94, ta: "122/78", destino: "urgencias" }, 
+  { edad: 38, sexo: "F", motivoConsulta: "Tengo dolor abdominal fuerte desde anoche y he vomitado bilis varias veces.", fc: 104, ta: "128/80", destino: "urgencias" }, 
+  { edad: 47, sexo: "M", motivoConsulta: "Tengo una mancha negra en el brazo, no se si me pico un animal.", fc: 86, ta: "130/84", destino: "urgencias" }, 
+  { edad: 61, sexo: "F", motivoConsulta: "Traigo una bolita muy dolorosa en mi colita y cada vez está peor.", fc: 92, ta: "126/74", temp: 37.8, destino: "urgencias" },
+  { edad: 35, sexo: "M", motivoConsulta: "Me duele la panza y tengo mucha fiebre.", fc: 105, ta: "120/80", temp: 38.2, destino: "urgencias" },
+  { edad: 28, sexo: "F", motivoConsulta: "Empecé a sangrar por la nariz de la nada y no para.", fc: 98, ta: "140/90", destino: "urgencias" },
+  { edad: 55, sexo: "M", motivoConsulta: "Tengo un dolor muy fuerte en la espalda baja que se me va hacia la pierna, no puedo ni caminar.", fc: 112, ta: "150/95", destino: "urgencias" },
+  { edad: 40, sexo: "F", motivoConsulta: "Llevo 5 días con diarrea, ya no tolero ni el agua.", fc: 115, ta: "90/50", destino: "urgencias" },
+  { edad: 19, sexo: "M", motivoConsulta: "Tengo asma y el salbutamol no me hizo nada.", fc: 108, ta: "125/80", spo2: 85, fr: 24, destino: "urgencias" }
 ];
