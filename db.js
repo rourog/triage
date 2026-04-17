@@ -127,6 +127,21 @@ const motivosTriageGenerico = [
   "Me troné el cuello y ahora siento tierrita cuando lo muevo.",
   "Me comí una sandía con leche y creo que me hizo daño.",
   "Tengo 3 meses que me tiembla el párpado cuando me estreso."
+  "Llevo 3 días vomitando todo lo que como y ya no orino nada.",
+  "¿Donde esta el baño?",
+  "Amaneci con muchas lagañas",
+  "Hoy salgo de vaciones, ¿Me puede dar antibioticos por si las dudas?",
+  "Vengo buscando a Humberto Tarango",
+  "El Doctor Avila me mando",
+  "¿Me vas a atender o no?, no tengo tu tiempo",
+  "Quiero una radiografia por que hace mucho me duele la panza",
+  "Fui al Vistas del Sol y me dijeron que me tenian que internar",
+  "Fui al Hospital Fortaleza y me dijeron que me tenian que internar",
+  "Fui a la clinica Delicias y me dijeron que me tenian que internar",    
+  "Fui a la San Felipe y me dijeron que me tenian que internar",
+  "El doctor Najera me mando dijo que era de vida o muerte",
+  "Me mandaron de consulta externa",
+  "Me mando la trabajadora social",
 ];
 
 const motivosUrgenciasGenerico = [
@@ -192,7 +207,7 @@ const motivosUrgenciasGenerico = [
   "Estaba soldando un mofle y me cayó escoria caliente en el ojo.",
   "Me tragué una espina de pescado y siento que la traigo atorada aquí en la garganta.",
   "Siento que me caminan insectos por debajo de la piel y traigo mucha taquicardia.",
-  "Llevo 3 días vomitando todo lo que como y ya no orino nada."
+  "Llevo 3 días vomitando todo lo que como y ya no orino nada.",
   "¿Donde esta el baño?",
   "Amaneci con muchas lagañas",
   "Hoy salgo de vaciones, ¿Me puede dar antibioticos por si las dudas?",
